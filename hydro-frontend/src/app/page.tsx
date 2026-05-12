@@ -654,12 +654,7 @@ function ContactForm() {
     if (!form.name || !form.email || !form.message) return;
     setStatus('sending');
     try {
-      const res = await fetch('http://localhost:5000/api/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      if (!res.ok) throw new Error('Server error');
+      const res = await api.post('/api/messages', form);
       setStatus('success');
       setForm({ name: '', email: '', phone: '', subject: '', message: '' });
       setTimeout(() => setStatus('idle'), 5000);
