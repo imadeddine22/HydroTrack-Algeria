@@ -79,6 +79,7 @@ function RowKV({ k, v }: { k: string; v: string }) {
 function CategorySection({ title, icon: Icon, items, color, onCardClick }: {
   title: string; icon: any; items: InfraItem[]; color: string; onCardClick: (i: InfraItem) => void;
 }) {
+  const { t } = useLang();
   if (items.length === 0) return null;
   return (
     <div className="mb-12">

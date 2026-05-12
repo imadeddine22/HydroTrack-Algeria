@@ -5,18 +5,25 @@ import { useLang } from '@/lib/i18n/LanguageContext';
 export interface InfraItem {
   _id: string;
   name: string;
+  name_ar?: string;
+  name_en?: string;
   type: string;
   subType?: string;
   sousType?: string;
   status: string;
   depth?: number | null;
   capacity?: number | null;
-  fillPercentage?: number | null;
   capacite?: number | null;
-  niveauActuel?: number | null;
+  volumeTotal?: number | null;
+  volumeActuel?: number | null;
+  fillPercentage?: number | null;
   tauxRemplissage?: number | null;
-  commune?: string;
+  niveauActuel?: number | null;
+  hauteur?: number | null;
+  profondeur?: number | null;
+  anneeMiseEnService?: number | null;
   debitJournalier?: number | null;
+  commune?: string;
   zoneId?: { name?: string; communeId?: { name?: string; wilayaId?: { name?: string } } };
 }
 
