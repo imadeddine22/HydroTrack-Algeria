@@ -60,9 +60,9 @@ function StatCard({ icon: Icon, label, value, color }: { icon: any; label: strin
 
 function AquaRow({ k, v, accent }: { k: string; v: string; accent?: string }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '3px 0' }}>
-      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>{k}</span>
-      <span style={{ fontSize: 11, fontWeight: 700, color: accent || '#ffffff', textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>{v}</span>
+    <div className="flex justify-between items-center py-1">
+      <span className="text-[11px] text-white/60 font-medium">{k}</span>
+      <span className={`text-[11px] font-bold ${accent ? '' : 'text-white'} drop-shadow-sm`} style={{ color: accent || '#ffffff' }}>{v}</span>
     </div>
   );
 }
@@ -88,7 +88,7 @@ function CategorySection({ title, icon: Icon, items, color, onCardClick }: {
         </div>
         <div>
           <h3 className="text-lg font-extrabold text-[#112347]">{title}</h3>
-          <p className="text-xs text-gray-400 font-semibold">{items.length} infrastructure{items.length > 1 ? 's' : ''} trouvée{items.length > 1 ? 's' : ''}</p>
+          <p className="text-xs text-gray-400 font-semibold">{items.length} {t.explore.found}</p>
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
@@ -132,7 +132,7 @@ export default function HomePage() {
     else setCommunes([]);
   }, [wid]);
   useEffect(() => {
-    setZid([] as any);
+    setZid('');
     if (cid) api.get(`/api/zones?communeId=${cid}`).then(setZones).catch(() => { });
     else setZones([]);
   }, [cid]);
@@ -339,7 +339,7 @@ export default function HomePage() {
             {t.features.items.map((feat, idx) => {
               const Icon = FEATURE_ICONS[idx];
               return (
-                <div key={idx} className="flex-1 flex flex-col items-center text-center px-4 w-full relative z-10">
+                <div key={`feat-${idx}`} className="flex-1 flex flex-col items-center text-center px-4 w-full relative z-10">
                   <div className="mb-6">
                     <Icon className="w-16 h-16 text-[#00D4FF]" strokeWidth={1.5} />
                   </div>
@@ -349,7 +349,7 @@ export default function HomePage() {
               );
             })}
             {[25, 50, 75].map(pos => (
-              <div key={pos} className={`hidden md:block absolute top-1/2 -translate-y-1/2 left-[${pos}%] -translate-x-1/2 text-gray-200 z-0`}>
+              <div key={pos} className="hidden md:block absolute top-1/2 -translate-y-1/2 -translate-x-1/2 text-gray-200 z-0" style={{ left: `${pos}%` }}>
                 <svg width="12" height="120" viewBox="0 0 12 120" fill="none">
                   <path d="M6 0 Q12 15 6 30 T6 60 T6 90 T6 120" stroke="currentColor" strokeWidth="1.5" fill="none" />
                 </svg>
@@ -581,7 +581,7 @@ export default function HomePage() {
                   <a href="https://www.facebook.com/jamal.messaoudi.2025" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 transition-colors">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
                   </a>
-                  <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:text-blue-800 transition-colors">
+                  <a href="https://www.linkedin.com/in/jamal-eddine-massaoudi/" target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:text-blue-800 transition-colors">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z M4 6a2 2 0 100-4 2 2 0 000 4z"/></svg>
                   </a>
                   <a href="https://wa.me/213698694461" target="_blank" rel="noopener noreferrer" className="text-green-500 hover:text-green-600 transition-colors">
