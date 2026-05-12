@@ -1,0 +1,67 @@
+const express = require('express');
+const router  = express.Router();
+const Zone    = require('../models/Zone');
+
+// GET /api/zones?communeId=...
+router.get('/', async (req, res) => {
+  try {
+    const filter = {};
+    if (req.query.communeId) filter.communeId = req.query.communeId;
+    const zones = await Zone.find(filter)
+      .populate({ path: 'communeId', select: 'name', populate: { path: 'wilayaId', select: 'name' } })
+      .sort({ name: 1 });
+    res.json(zones);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/zones/:id
+router.get('/:id', async (req, res) => {
+  try {
+    const z = await Zone.findById(req.params.id).populate({ path: 'communeId', populate: { path: 'wilayaId' } });
+    if (!z) return res.status(404).json({ error: 'Zone not found' });
+    res.json(z);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/zones
+router.post('/', async (req, res) => {
+  try {
+    const { name, communeId } = req.body;
+    const z = await Zone.create({ name, communeId });
+    res.status(201).json(z);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// PUT /api/zones/:id
+router.put('/:id', async (req, res) => {
+  try {
+    const { name, communeId } = req.body;
+    const updates = {};
+    if (name !== undefined) updates.name = name;
+    if (communeId !== undefined) updates.communeId = communeId;
+
+    const z = await Zone.findByIdAndUpdate(req.params.id, updates, { new: true });
+    if (!z) return res.status(404).json({ error: 'Zone not found' });
+    res.json(z);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// DELETE /api/zones/:id
+router.delete('/:id', async (req, res) => {
+  try {
+    await Zone.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+module.exports = router;
