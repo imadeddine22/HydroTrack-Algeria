@@ -1,5 +1,5 @@
 // All API calls go to the Express backend (port 5000)
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const BASE = process.env.NEXT_PUBLIC_API_URL || '';
 const KEY  = process.env.NEXT_PUBLIC_ADMIN_API_KEY || '';
 
 const headers = {
