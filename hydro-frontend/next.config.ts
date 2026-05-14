@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.BACKEND_URL || 'https://hydrotrack-backend.vercel.app'}/api/:path*`,
+        destination: 'https://hydrotrack-backend.onrender.com/api/:path*',
       },
     ];
   },
