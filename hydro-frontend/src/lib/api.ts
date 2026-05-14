@@ -1,5 +1,8 @@
 // All API calls go to the Express backend (port 5000)
-const BASE = process.env.NEXT_PUBLIC_API_URL || '';
+// In production (Vercel), we use relative paths so vercel.json rewrites can proxy to Render.
+// In development, we use the env var which usually points to localhost:5000.
+const isProd = typeof window !== 'undefined' && !window.location.hostname.includes('localhost');
+const BASE = isProd ? '' : (process.env.NEXT_PUBLIC_API_URL || '');
 const KEY  = process.env.NEXT_PUBLIC_ADMIN_API_KEY || '';
 
 const headers = {

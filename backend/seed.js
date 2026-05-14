@@ -67,15 +67,20 @@ const ALGERIA_DATA = [
 ];
 
 async function seed(db_uri) {
-  await mongoose.connect(db_uri);
+  if (!mongoose.connection.readyState) {
+    await mongoose.connect(db_uri);
+  }
   console.log('🌱  Connected to MongoDB — seeding...');
 
+  const WilayaInfrastructure = require('./models/WilayaInfrastructure');
+  
   // ── Wipe existing ────────────────────────────────────────────
   await Promise.all([
     Wilaya.deleteMany(),
     Commune.deleteMany(),
     Zone.deleteMany(),
     Infrastructure.deleteMany(),
+    WilayaInfrastructure.deleteMany(),
   ]);
 
   // ── Insert all 58 Wilayas ────────────────────────────────────
@@ -92,8 +97,21 @@ async function seed(db_uri) {
   }
   const communeDocs = await Commune.insertMany(communeInserts);
 
-  // ── Sample Zones (for Alger & Oran) ─────────────────────────
-  // Alger communes
+  // ── Sample Wilaya Infrastructure (for the Explorer) ──────────
+  const algerId = wilayaDocs.find(w => w.name.includes('Alger'))._id;
+  const oranId  = wilayaDocs.find(w => w.name.includes('Oran'))._id;
+  const conId   = wilayaDocs.find(w => w.name.includes('Constantine'))._id;
+
+  await WilayaInfrastructure.insertMany([
+    { wilayaId: algerId, name: 'Forage Sidi M\'Hamed 01', name_ar: 'تنقيب سيدي امحمد 01', type: 'forage', status: 'active', depth: 250, debitJournalier: 1200, commune: 'Sidi M\'Hamed' },
+    { wilayaId: algerId, name: 'Château d\'eau Hydra', name_ar: 'خزان مياه حيدرة', type: 'chateau_eau', status: 'active', capacite: 5000, niveauActuel: 85, commune: 'Hydra' },
+    { wilayaId: oranId,  name: 'Barrage Ouest Oran', name_ar: 'سد غرب وهران', type: 'barrage', status: 'active', volumeTotal: 150, volumeActuel: 110, tauxRemplissage: 73, commune: 'Bir El Djir' },
+    { wilayaId: oranId,  name: 'Forage Es Senia 04', name_ar: 'تنقيب السانية 04', type: 'forage', status: 'inactive', depth: 180, debitJournalier: 800, commune: 'Es Senia' },
+    { wilayaId: conId,   name: 'Barrage Beni Haroun (Station)', name_ar: 'سد بني هارون (محطة)', type: 'barrage', status: 'active', volumeTotal: 960, volumeActuel: 680, tauxRemplissage: 71, commune: 'Hamma Bouziane' },
+    { wilayaId: conId,   name: 'Réservoir El Khroub', name_ar: 'خزان الخروب', type: 'chateau_eau', status: 'active', capacite: 15000, niveauActuel: 60, commune: 'El Khroub' },
+  ]);
+
+  // ── Sample Zones (for detailed monitoring) ───────────────────
   const algerCommunes = communeDocs.filter(c =>
     wilayaDocs.find(w => w.name === '16 - Alger' && w._id.equals(c.wilayaId))
   );
@@ -105,28 +123,28 @@ async function seed(db_uri) {
   );
 
   const kouba = algerCommunes.find(c => c.name === 'Kouba');
-  const hydra = algerCommunes.find(c => c.name === 'Hydra');
+  const hydraComm = algerCommunes.find(c => c.name === 'Hydra');
   const birElDjir = oranCommunes.find(c => c.name === 'Bir El Djir');
   const elKhroub = conCommunes.find(c => c.name === 'El Khroub');
 
-  if (!kouba || !hydra || !birElDjir || !elKhroub) {
-    console.log('⚠️  Some sample communes not found, skipping infrastructure seed.');
-    console.log(`✅  Wilayas: 58 | Communes: ${communeDocs.length}`);
+  if (!kouba || !hydraComm || !birElDjir || !elKhroub) {
+    console.log('⚠️  Some sample communes not found, skipping detailed infrastructure seed.');
+    console.log(`✅  Wilayas: 58 | Communes: ${communeDocs.length} | Wilaya Infras: 6`);
     await mongoose.disconnect();
     return;
   }
 
-  const zones = await Zone.insertMany([
+  const zonesDocs = await Zone.insertMany([
     { name: 'Zone Nord Kouba', communeId: kouba._id },
     { name: 'Zone Sud Kouba', communeId: kouba._id },
-    { name: 'Hydra Plateau', communeId: hydra._id },
+    { name: 'Hydra Plateau', communeId: hydraComm._id },
     { name: 'Oran Est', communeId: birElDjir._id },
     { name: 'Oran Ouest', communeId: birElDjir._id },
     { name: 'Khroub Centre', communeId: elKhroub._id },
     { name: 'Khroub Nord', communeId: elKhroub._id },
   ]);
 
-  const [zK1, zK2, zH1, zB1, zB2, zC1, zC2] = zones;
+  const [zK1, zK2, zH1, zB1, zB2, zC1, zC2] = zonesDocs;
 
   // ── Sample Infrastructures ───────────────────────────────────
   await Infrastructure.insertMany([
@@ -140,12 +158,12 @@ async function seed(db_uri) {
     { name: 'Réservoir Sol Hydra', type: 'tank', subType: 'ground', status: 'active', zoneId: zH1._id, capacity: 12000 },
     { name: 'Château Oran Est', type: 'tank', subType: 'elevated', status: 'inactive', zoneId: zB1._id, capacity: 8000 },
     { name: 'Réservoir Khroub Centre', type: 'tank', subType: 'ground', status: 'active', zoneId: zC1._id, capacity: 20000 },
-    { name: 'Barrage Ouest Oran', type: 'dam', status: 'active', zoneId: zB2._id, capacity: 150_000_000, fillPercentage: 75 },
-    { name: 'Barrage Beni Haroun', type: 'dam', status: 'active', zoneId: zC2._id, capacity: 960_000_000, fillPercentage: 68 },
+    { name: 'Barrage Ouest Oran Detail', type: 'dam', status: 'active', zoneId: zB2._id, capacity: 150_000_000, fillPercentage: 75 },
+    { name: 'Barrage Beni Haroun Detail', type: 'dam', status: 'active', zoneId: zC2._id, capacity: 960_000_000, fillPercentage: 68 },
   ]);
 
   console.log('✅  Database seeded successfully!');
-  console.log(`   Wilayas: 58 | Communes: ${communeDocs.length} | Zones: ${zones.length} | Infrastructures: 12`);
+  console.log(`   Wilayas: 58 | Communes: ${communeDocs.length} | Wilaya Infras: 6 | Detailed Infras: 12`);
 }
 
 module.exports = seed;

@@ -568,7 +568,7 @@ export default function HomePage() {
             {/* Expert bio card */}
             <div className="bg-[#EBF5FF] rounded-2xl p-5 flex items-start gap-5 max-w-xl border border-[#00D4FF]/20">
               <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shrink-0 overflow-hidden border-2 border-[#00D4FF]/40 shadow">
-                <img src="/expert-man.png" alt="Jamal Eddine Massaoudi" className="h-full w-full object-cover object-top scale-[1.3] translate-y-1" />
+                <img src="/expert-man.png" alt="Jamal Eddine Massaoudi" className="h-full w-full object-cover object-top scale-[1.6] translate-y-6" />
               </div>
               <div>
                 <p className="font-extrabold text-[#0B1E40] text-base">Jamal Eddine Massaoudi</p>

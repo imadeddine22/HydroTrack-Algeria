@@ -63,6 +63,7 @@ const PUBLIC_GET_ROUTES = [
   '/api/communes',
   '/api/zones',
   '/api/infrastructures',
+  '/api/wilaya-infra',
   '/health'
 ];
 
