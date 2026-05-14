@@ -48,11 +48,10 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // ── Middleware ───────────────────────────────────────────────────────────────
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001', process.env.FRONTEND_URL].filter(Boolean);
 app.use(cors({ 
-  origin: allowedOrigins,
+  origin: '*', 
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key']
 }));
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
