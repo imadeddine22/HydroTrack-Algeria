@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
-  Home, BarChart2, Activity,
+  Home, BarChart2,
   Database, Settings, LogOut, Droplets, MessageSquare, Layers, Globe,
 } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -12,7 +12,6 @@ import { useLang } from '@/lib/i18n/LanguageContext';
 const getNav = (t: any) => [
   { icon: Home,           label: t.nav.home,         href: '/' },
   { icon: BarChart2,      label: t.nav.dashboard,    href: '/dashboard' },
-  { icon: Activity,       label: t.nav.monitoring,   href: '/dashboard/monitoring' },
   { icon: Layers,         label: t.nav.wilaya,       href: '/dashboard/wilaya-infra' },
   { icon: Database,       label: t.nav.data,         href: '/dashboard/data' },
   { icon: MessageSquare,  label: t.nav.messages,     href: '/dashboard/messages' },
