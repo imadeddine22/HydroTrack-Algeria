@@ -76,7 +76,7 @@ const auth = (req, res, next) => {
   if (isPublicGet || isPublicPost) return next();
 
   // 3. Check API Key
-  const key = req.headers['authorization'];
+  const key = req.headers['authorization'] || req.headers['x-api-key'];
   if (key && key === process.env.ADMIN_API_KEY) return next();
 
   res.status(401).json({ error: 'Unauthorized: Invalid or missing API Key' });
