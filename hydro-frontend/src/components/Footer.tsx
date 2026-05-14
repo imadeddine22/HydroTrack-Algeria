@@ -1,8 +1,19 @@
 "use client";
+import { useEffect, useState } from 'react';
 import { useLang } from '@/lib/i18n/LanguageContext';
 
 export default function Footer() {
   const { t, isRTL } = useLang();
+  const [showTop, setShowTop] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > 300);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
   const handleAnchor = (href: string) => {
     if (href.startsWith('#')) {
       const el = document.querySelector(href);
@@ -183,16 +194,19 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Scroll to top button */}
-      <button
-        className="absolute bottom-10 right-10 bg-[#00D4FF] p-3 rounded shadow hover:bg-[#00b4d8] transition-colors"
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        title={t.footer.backToTop}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="white" className="w-5 h-5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
-        </svg>
-      </button>
+      {/* Scroll-to-top — fixed, always visible once scrolled */}
+      {showTop && (
+        <button
+          onClick={scrollToTop}
+          title={t.footer.backToTop}
+          style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999 }}
+          className="bg-[#00D4FF] p-3 rounded-full shadow-lg hover:bg-[#00b4d8] active:scale-95 transition-all"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="white" className="w-5 h-5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+          </svg>
+        </button>
+      )}
     </footer>
   );
 }
