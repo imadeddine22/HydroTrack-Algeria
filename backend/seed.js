@@ -74,13 +74,12 @@ async function seed(db_uri) {
 
   const WilayaInfrastructure = require('./models/WilayaInfrastructure');
   
-  // ── Wipe existing ────────────────────────────────────────────
+  // ── Wipe existing geo data (keeps WilayaInfrastructure intact) ───────────
   await Promise.all([
     Wilaya.deleteMany(),
     Commune.deleteMany(),
     Zone.deleteMany(),
     Infrastructure.deleteMany(),
-    WilayaInfrastructure.deleteMany(),
   ]);
 
   // ── Insert all 58 Wilayas ────────────────────────────────────
@@ -96,20 +95,6 @@ async function seed(db_uri) {
     }
   }
   const communeDocs = await Commune.insertMany(communeInserts);
-
-  // ── Sample Wilaya Infrastructure (for the Explorer) ──────────
-  const algerId = wilayaDocs.find(w => w.name.includes('Alger'))._id;
-  const oranId  = wilayaDocs.find(w => w.name.includes('Oran'))._id;
-  const conId   = wilayaDocs.find(w => w.name.includes('Constantine'))._id;
-
-  await WilayaInfrastructure.insertMany([
-    { wilayaId: algerId, name: 'Forage Sidi M\'Hamed 01', name_ar: 'تنقيب سيدي امحمد 01', type: 'forage', status: 'active', depth: 250, debitJournalier: 1200, commune: 'Sidi M\'Hamed' },
-    { wilayaId: algerId, name: 'Château d\'eau Hydra', name_ar: 'خزان مياه حيدرة', type: 'chateau_eau', status: 'active', capacite: 5000, niveauActuel: 85, commune: 'Hydra' },
-    { wilayaId: oranId,  name: 'Barrage Ouest Oran', name_ar: 'سد غرب وهران', type: 'barrage', status: 'active', volumeTotal: 150, volumeActuel: 110, tauxRemplissage: 73, commune: 'Bir El Djir' },
-    { wilayaId: oranId,  name: 'Forage Es Senia 04', name_ar: 'تنقيب السانية 04', type: 'forage', status: 'inactive', depth: 180, debitJournalier: 800, commune: 'Es Senia' },
-    { wilayaId: conId,   name: 'Barrage Beni Haroun (Station)', name_ar: 'سد بني هارون (محطة)', type: 'barrage', status: 'active', volumeTotal: 960, volumeActuel: 680, tauxRemplissage: 71, commune: 'Hamma Bouziane' },
-    { wilayaId: conId,   name: 'Réservoir El Khroub', name_ar: 'خزان الخروب', type: 'chateau_eau', status: 'active', capacite: 15000, niveauActuel: 60, commune: 'El Khroub' },
-  ]);
 
   // ── Sample Zones (for detailed monitoring) ───────────────────
   const algerCommunes = communeDocs.filter(c =>
