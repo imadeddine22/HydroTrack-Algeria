@@ -380,6 +380,10 @@ export const translations = {
       wilayaAdded: 'Wilaya ajoutée avec succès !',
       communeAdded: 'Commune ajoutée avec succès !',
       deleted: 'Supprimé !',
+      addZone: 'Ajouter Zone',
+      zoneName: 'Nom de la Zone',
+      noZones: 'Aucune zone enregistrée pour cette commune.',
+      confirmDeleteZone: 'Voulez-vous vraiment supprimer cette zone ?',
     }
   },
 
@@ -754,6 +758,10 @@ export const translations = {
       wilayaAdded: 'Wilaya added successfully!',
       communeAdded: 'Commune added successfully!',
       deleted: 'Deleted!',
+      addZone: 'Add Zone',
+      zoneName: 'Zone Name',
+      noZones: 'No zones registered for this commune.',
+      confirmDeleteZone: 'Do you really want to delete this zone?',
     }
   },
 
@@ -1127,6 +1135,10 @@ export const translations = {
       wilayaAdded: 'تمت إضافة الولاية بنجاح!',
       communeAdded: 'تمت إضافة البلدية بنجاح!',
       deleted: 'تم الحذف!',
+      addZone: 'إضافة منطقة',
+      zoneName: 'اسم المنطقة',
+      noZones: 'لا توجد مناطق مسجلة لهذه البلدية.',
+      confirmDeleteZone: 'هل تريد حقاً حذف هذه المنطقة؟',
     }
   },
 };

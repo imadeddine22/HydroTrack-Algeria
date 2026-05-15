@@ -27,8 +27,15 @@ export default function DataPage(){
   const [stats,setStats]=useState<InfraStats|null>(null);
   const [wilayas,setWilayas]=useState<any[]>([]);
   const [loading,setLoading]=useState(true);
+  
+  // Wilaya Management
+  const [showManager, setShowManager] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [newName, setNewName] = useState('');
+  const [newCode, setNewCode] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  useEffect(()=>{
+  const loadData = () => {
     setLoading(true);
     Promise.all([api.get('/api/wilaya-infra/stats'),api.get('/api/wilayas')])
       .then(([s,w])=>{ 
@@ -48,7 +55,49 @@ export default function DataPage(){
         if(Array.isArray(w))setWilayas(w); 
       })
       .catch(()=>{}).finally(()=>setLoading(false));
+  };
+
+  useEffect(()=>{
+    loadData();
   },[]);
+
+  const handleAddWilaya = async () => {
+    if (!newName.trim()) return;
+    setIsProcessing(true);
+    try {
+      await api.post('/api/wilayas', { name: newName.trim(), code: newCode.trim() });
+      setNewName(''); setNewCode('');
+      loadData();
+    } catch (e) {}
+    setIsProcessing(false);
+  };
+
+  const handleUpdateWilaya = async (id: string) => {
+    if (!newName.trim()) return;
+    setIsProcessing(true);
+    try {
+      await api.put(`/api/wilayas/${id}`, { name: newName.trim(), code: newCode.trim() });
+      setEditingId(null); setNewName(''); setNewCode('');
+      loadData();
+    } catch (e) {}
+    setIsProcessing(false);
+  };
+
+  const handleDeleteWilaya = async (id: string) => {
+    if (!confirm(t.geoPage.confirmDeleteWilaya)) return;
+    setIsProcessing(true);
+    try {
+      await api.delete(`/api/wilayas/${id}`);
+      loadData();
+    } catch (e) {}
+    setIsProcessing(false);
+  };
+
+  const startEdit = (wil: any) => {
+    setEditingId(wil._id);
+    setNewName(wil.name);
+    setNewCode(wil.code || '');
+  };
 
   const max = stats ? Math.max(stats.byType.forage,stats.byType.tank,stats.byType.dam,1):1;
 
@@ -152,18 +201,104 @@ export default function DataPage(){
 
             {/* Wilayas table */}
             <div style={{background:'white',borderRadius:18,padding:20,boxShadow:'0 1px 4px rgba(0,0,0,0.06)',border:'1px solid #f3f4f6'}}>
-              <h2 style={{fontSize:14,fontWeight:700,color:'#112347',margin:'0 0 16px',display:'flex',alignItems:'center',gap:8}}>
-                <Database size={16} color="#0077b6"/> {w.savedWilayas} ({wilayas.length})
-              </h2>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))',gap:8}}>
-                {wilayas.map((wil,i)=>(
-                  <div key={wil._id} style={{background:'#f8fafc',borderRadius:10,padding:'8px 12px',display:'flex',alignItems:'center',gap:8}}>
-                    <span style={{width:22,height:22,borderRadius:6,background:'#e0f7ff',color:'#0096c7',fontSize:10,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{i+1}</span>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+                <h2 style={{fontSize:14,fontWeight:700,color:'#112347',margin:0,display:'flex',alignItems:'center',gap:8}}>
+                  <Database size={16} color="#0077b6"/> {w.savedWilayas} ({wilayas.length})
+                </h2>
+                <button 
+                  onClick={() => setShowManager(true)}
+                  style={{padding:'6px 12px',borderRadius:8,background:'#e0f7ff',color:'#0096c7',border:'none',fontSize:11,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:6}}
+                >
+                  <RefreshCw size={12} /> {t.geoPage.addWilaya} / {t.wilayaInfraPage.edit}
+                </button>
+              </div>
+              
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))',gap:8}}>
+                {wilayas.sort((a,b) => (Number(a.code)||99) - (Number(b.code)||99)).map((wil)=>(
+                  <div key={wil._id} style={{background:'#f8fafc',borderRadius:10,padding:'8px 12px',display:'flex',alignItems:'center',gap:8, border:'1px solid #f1f5f9'}}>
+                    <span style={{width:24,height:24,borderRadius:6,background:'#e0f7ff',color:'#0096c7',fontSize:11,fontWeight:800,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                      {wil.code || '?'}
+                    </span>
                     <span style={{fontSize:12,fontWeight:600,color:'#374151',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{wil.name}</span>
                   </div>
                 ))}
               </div>
             </div>
+          </>
+        )}
+      </div>
+
+      {/* Wilaya Manager Modal */}
+      {showManager && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.4)',backdropFilter:'blur(4px)',zIndex:1000,display:'flex',alignItems:'center',justifyContent:'center',padding:20}} onClick={() => setShowManager(false)}>
+          <div style={{background:'white',borderRadius:24,width:'100%',maxWidth:500,maxHeight:'85vh',display:'flex',flexDirection:'column',boxShadow:'0 20px 50px rgba(0,0,0,0.15)'}} onClick={e => e.stopPropagation()}>
+            <div style={{padding:'20px 24px',borderBottom:'1px solid #f3f4f6',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <h2 style={{fontSize:18,fontWeight:800,color:'#112347',margin:0}}>{t.geoPage.title}</h2>
+              <button onClick={() => setShowManager(false)} style={{background:'none',border:'none',cursor:'pointer',color:'#9ca3af'}}><Download size={20} style={{transform:'rotate(45deg)'}}/></button>
+            </div>
+
+            <div style={{flex:1,overflowY:'auto',padding:24}}>
+              {/* Add form */}
+              <div style={{background:'#f8fafc',borderRadius:16,padding:16,marginBottom:24,border:'1px solid #e2e8f0'}}>
+                <p style={{fontSize:12,fontWeight:800,color:'#64748b',marginBottom:12,textTransform:'uppercase'}}>{editingId ? t.wilayaInfraPage.edit : t.geoPage.addWilaya}</p>
+                <div style={{display:'flex',gap:8,flexDirection:'column'}}>
+                  <div style={{display:'flex',gap:8}}>
+                    <input 
+                      placeholder="01" 
+                      value={newCode} 
+                      onChange={e => setNewCode(e.target.value)}
+                      style={{width:60,padding:'10px',borderRadius:10,border:'1px solid #e2e8f0',fontSize:13,outline:'none'}}
+                    />
+                    <input 
+                      placeholder={t.geoPage.wilayaName} 
+                      value={newName} 
+                      onChange={e => setNewName(e.target.value)}
+                      style={{flex:1,padding:'10px',borderRadius:10,border:'1px solid #e2e8f0',fontSize:13,outline:'none'}}
+                    />
+                  </div>
+                  <div style={{display:'flex',gap:8,justifyContent:'flex-end'}}>
+                    {editingId && (
+                      <button onClick={() => {setEditingId(null); setNewName(''); setNewCode('');}} style={{padding:'8px 16px',borderRadius:10,background:'white',border:'1px solid #e2e8f0',fontSize:12,fontWeight:600,color:'#64748b',cursor:'pointer'}}>
+                        {t.wilayaInfraPage.cancel}
+                      </button>
+                    )}
+                    <button 
+                      onClick={() => editingId ? handleUpdateWilaya(editingId) : handleAddWilaya()}
+                      disabled={isProcessing || !newName.trim()}
+                      style={{padding:'8px 20px',borderRadius:10,background:'#00b4d8',color:'white',border:'none',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:6}}
+                    >
+                      {isProcessing ? '...' : <RefreshCw size={14} />}
+                      {editingId ? t.wilayaInfraPage.save : t.geoPage.addWilaya}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* List */}
+              <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                {wilayas.sort((a,b) => (Number(a.code)||99) - (Number(b.code)||99)).map(wil => (
+                  <div key={wil._id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 14px',background:'white',border:'1px solid #f1f5f9',borderRadius:14}}>
+                    <div style={{display:'flex',alignItems:'center',gap:12}}>
+                      <span style={{width:28,height:28,borderRadius:8,background:'#e0f7ff',color:'#0096c7',fontSize:12,fontWeight:800,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                        {wil.code || '??'}
+                      </span>
+                      <span style={{fontSize:13,fontWeight:600,color:'#1e293b'}}>{wil.name}</span>
+                    </div>
+                    <div style={{display:'flex',gap:6}}>
+                      <button onClick={() => startEdit(wil)} style={{width:32,height:32,borderRadius:8,border:'none',background:'#f1f5f9',color:'#64748b',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                        <RefreshCw size={14} />
+                      </button>
+                      <button onClick={() => handleDeleteWilaya(wil._id)} style={{width:32,height:32,borderRadius:8,border:'none',background:'#fef2f2',color:'#ef4444',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                        <Download size={14} style={{transform:'rotate(45deg)'}}/>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
           </>
         )}
       </div>

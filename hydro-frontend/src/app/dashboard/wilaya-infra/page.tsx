@@ -8,7 +8,7 @@ import { type Lang } from '@/lib/i18n/translations';
 import CyberInfraCard from '@/components/CyberInfraCard';
 import CyberButton from '@/components/CyberButton';
 
-interface Wilaya { _id: string; name: string; }
+interface Wilaya { _id: string; name: string; code?: string; }
 interface WInfra {
   _id: string; wilayaId: { _id: string; name: string } | string;
   name: string; type: 'forage' | 'chateau_eau' | 'barrage';
@@ -73,10 +73,16 @@ export default function WilayaInfraPage() {
   // Geo Management state
   const [isAddingWilaya, setIsAddingWilaya] = useState(false);
   const [newWilayaName, setNewWilayaName] = useState('');
+  const [newWilayaCode, setNewWilayaCode] = useState('');
+  const [editingWilaya, setEditingWilaya] = useState<Wilaya | null>(null);
   const [isGeoLoading, setIsGeoLoading] = useState(false);
   const [communes, setCommunes] = useState<{_id:string, name:string}[]>([]);
+  const [selectedCid, setSelectedCid] = useState('');
+  const [zones, setZones] = useState<{_id:string, name:string}[]>([]);
   const [isAddingCommune, setIsAddingCommune] = useState(false);
   const [newCommuneName, setNewCommuneName] = useState('');
+  const [isAddingZone, setIsAddingZone] = useState(false);
+  const [newZoneName, setNewZoneName] = useState('');
 
   useEffect(() => { api.get('/api/wilayas').then(setWilayas).catch(() => {}); }, []);
 
@@ -91,6 +97,8 @@ export default function WilayaInfraPage() {
 
   const handleWilaya = (id: string) => { 
     setWid(id); 
+    setSelectedCid('');
+    setZones([]);
     loadItems(id);
     if (id) {
       api.get(`/api/communes?wilayaId=${id}`).then(setCommunes).catch(() => {});
@@ -99,18 +107,55 @@ export default function WilayaInfraPage() {
     }
   };
 
+  const handleCommune = (id: string) => {
+    setSelectedCid(id);
+    if (id) {
+      api.get(`/api/zones?communeId=${id}`).then(setZones).catch(() => {});
+    } else {
+      setZones([]);
+    }
+  };
+
   const handleCreateWilaya = async () => {
     if (!newWilayaName.trim()) return;
     setIsGeoLoading(true);
     try {
-      const res = await api.post('/api/wilayas', { name: newWilayaName.trim() });
+      const res = await api.post('/api/wilayas', { 
+        name: newWilayaName.trim(), 
+        code: newWilayaCode.trim() 
+      });
       const all = await api.get('/api/wilayas');
       setWilayas(all);
       setIsAddingWilaya(false);
       setNewWilayaName('');
+      setNewWilayaCode('');
       handleWilaya(res._id);
     } catch (e) {}
     setIsGeoLoading(false);
+  };
+
+  const handleUpdateWilaya = async () => {
+    if (!editingWilaya || !newWilayaName.trim()) return;
+    setIsGeoLoading(true);
+    try {
+      await api.put(`/api/wilayas/${editingWilaya._id}`, { 
+        name: newWilayaName.trim(), 
+        code: newWilayaCode.trim() 
+      });
+      const all = await api.get('/api/wilayas');
+      setWilayas(all);
+      setEditingWilaya(null);
+      setNewWilayaName('');
+      setNewWilayaCode('');
+    } catch (e) {}
+    setIsGeoLoading(false);
+  };
+
+  const startEditWilaya = (wil: Wilaya) => {
+    setEditingWilaya(wil);
+    setNewWilayaName(wil.name);
+    setNewWilayaCode(wil.code || '');
+    setIsAddingWilaya(true);
   };
 
   const handleDeleteWilaya = async () => {
@@ -147,6 +192,34 @@ export default function WilayaInfraPage() {
       await api.delete(`/api/communes/${id}`);
       const res = await api.get(`/api/communes?wilayaId=${wid}`);
       setCommunes(res);
+      if (selectedCid === id) {
+        setSelectedCid('');
+        setZones([]);
+      }
+    } catch (e) {}
+    setIsGeoLoading(false);
+  };
+
+  const handleCreateZone = async () => {
+    if (!newZoneName.trim() || !selectedCid) return;
+    setIsGeoLoading(true);
+    try {
+      await api.post('/api/zones', { name: newZoneName.trim(), communeId: selectedCid });
+      const res = await api.get(`/api/zones?communeId=${selectedCid}`);
+      setZones(res);
+      setIsAddingZone(false);
+      setNewZoneName('');
+    } catch (e) {}
+    setIsGeoLoading(false);
+  };
+
+  const handleDeleteZone = async (id: string) => {
+    if (!confirm(t.geoPage.confirmDeleteZone || 'Supprimer cette zone ?')) return;
+    setIsGeoLoading(true);
+    try {
+      await api.delete(`/api/zones/${id}`);
+      const res = await api.get(`/api/zones?communeId=${selectedCid}`);
+      setZones(res);
     } catch (e) {}
     setIsGeoLoading(false);
   };
@@ -228,7 +301,13 @@ export default function WilayaInfraPage() {
             <p style={{ fontSize:12, fontWeight:700, color:'#112347', margin:0 }}>{w.selectWilaya}</p>
             <div style={{ display:'flex', gap:8 }}>
               {isAddingWilaya ? (
-                <div style={{ display:'flex', gap:4 }}>
+                <div style={{ display:'flex', gap:4, alignItems:'center' }}>
+                  <input 
+                    placeholder="01"
+                    value={newWilayaCode}
+                    onChange={e => setNewWilayaCode(e.target.value)}
+                    style={{ border:'1px solid #3b82f6', borderRadius:8, padding:'4px 8px', fontSize:12, outline:'none', width:40 }}
+                  />
                   <input 
                     autoFocus
                     placeholder={t.geoPage.wilayaName}
@@ -236,10 +315,10 @@ export default function WilayaInfraPage() {
                     onChange={e => setNewWilayaName(e.target.value)}
                     style={{ border:'1px solid #3b82f6', borderRadius:8, padding:'4px 8px', fontSize:12, outline:'none' }}
                   />
-                  <button onClick={handleCreateWilaya} disabled={isGeoLoading} style={{ color:'#059669', background:'transparent', border:'none', cursor:'pointer' }}>
+                  <button onClick={editingWilaya ? handleUpdateWilaya : handleCreateWilaya} disabled={isGeoLoading} style={{ color:'#059669', background:'transparent', border:'none', cursor:'pointer' }}>
                     {isGeoLoading ? <Loader2 size={16} className="animate-spin" /> : <Check size={18} />}
                   </button>
-                  <button onClick={() => setIsAddingWilaya(false)} style={{ color:'#ef4444', background:'transparent', border:'none', cursor:'pointer' }}>
+                  <button onClick={() => {setIsAddingWilaya(false); setEditingWilaya(null); setNewWilayaName(''); setNewWilayaCode('');}} style={{ color:'#ef4444', background:'transparent', border:'none', cursor:'pointer' }}>
                     <X size={18} />
                   </button>
                 </div>
@@ -254,16 +333,25 @@ export default function WilayaInfraPage() {
           <div style={{ display:'flex', gap:10, alignItems:'center' }}>
             <div style={{ position:'relative', flex:1, maxWidth:360 }}>
               <select value={wid} onChange={e => handleWilaya(e.target.value)}
-                style={{ width:'100%', appearance:'none', background:'white', border:'1.5px solid #e5e7eb', borderRadius:12, padding: isRTL ? '11px 14px 11px 36px' : '11px 36px 11px 14px', fontSize:13, fontWeight:600, color:'#112347', cursor:'pointer' }}>
+                style={{ width:'100%', appearance:'none', background:'white', border:'1.5px solid #e5e7eb', borderRadius:12, padding: isRTL ? '11px 14px 11px 44px' : '11px 44px 11px 14px', fontSize:13, fontWeight:600, color:'#112347', cursor:'pointer' }}>
                 <option value="">{w.chooseWilaya}</option>
-                {wilayas.map(wilaya => <option key={wilaya._id} value={wilaya._id}>{wilaya.name}</option>)}
+                {wilayas.sort((a,b)=>(Number(a.code)||99)-(Number(b.code)||99)).map(wilaya => (
+                  <option key={wilaya._id} value={wilaya._id}>
+                    {wilaya.code ? `${wilaya.code} - ` : ''}{wilaya.name}
+                  </option>
+                ))}
               </select>
               <ChevronDown size={14} color="#9ca3af" style={{ position:'absolute', [isRTL ? 'left' : 'right']:12, top:'50%', transform:'translateY(-50%)', pointerEvents:'none' }} />
             </div>
             {wid && (
-              <button onClick={handleDeleteWilaya} disabled={isGeoLoading} style={{ padding:11, borderRadius:12, background:'#fef2f2', color:'#ef4444', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                {isGeoLoading ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={18} />}
-              </button>
+              <div style={{display:'flex', gap:8}}>
+                <button onClick={() => startEditWilaya(wilayas.find(x=>x._id===wid)!)} style={{ padding:11, borderRadius:12, background:'#f0f9ff', color:'#0369a1', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  <RefreshCw size={18} />
+                </button>
+                <button onClick={handleDeleteWilaya} disabled={isGeoLoading} style={{ padding:11, borderRadius:12, background:'#fef2f2', color:'#ef4444', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  {isGeoLoading ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={18} />}
+                </button>
+              </div>
             )}
           </div>
 
@@ -311,16 +399,16 @@ export default function WilayaInfraPage() {
               <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
                 {communes.length > 0 ? communes.map(c => (
                   <div key={c._id} 
+                    onClick={() => handleCommune(c._id)}
                     style={{ 
-                      display:'flex', alignItems:'center', gap:8, padding:'8px 12px', background:'white', 
-                      border:'1px solid #e2e8f0', borderRadius:10, fontSize:13, color:'#334155', fontWeight:600,
-                      transition:'all 0.2s', cursor:'default'
+                      display:'flex', alignItems:'center', gap:8, padding:'8px 12px', background: selectedCid === c._id ? '#eff6ff' : 'white', 
+                      border:`1px solid ${selectedCid === c._id ? '#3b82f6' : '#e2e8f0'}`, borderRadius:10, fontSize:13, color:'#334155', fontWeight:600,
+                      transition:'all 0.2s', cursor:'pointer', transform: selectedCid === c._id ? 'scale(1.02)' : 'none',
+                      boxShadow: selectedCid === c._id ? '0 4px 12px rgba(59, 130, 246, 0.15)' : 'none'
                     }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'none'; }}
                   >
                     <span>{c.name}</span>
-                    <button onClick={() => handleDeleteCommune(c._id)} 
+                    <button onClick={(e) => { e.stopPropagation(); handleDeleteCommune(c._id); }} 
                       style={{ border:'none', background:'transparent', cursor:'pointer', color:'#cbd5e1', padding:0, display:'flex', transition:'color 0.2s' }}
                       onMouseEnter={e => e.currentTarget.style.color = '#ef4444'}
                       onMouseLeave={e => e.currentTarget.style.color = '#cbd5e1'}
@@ -334,6 +422,58 @@ export default function WilayaInfraPage() {
                   </div>
                 )}
               </div>
+
+              {/* Zones management */}
+              {selectedCid && (
+                <div style={{ marginTop:24, padding:'16px 20px', background:'#f8fafc', borderRadius:20, border:'1.5px solid #e2e8f0' }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
+                    <div>
+                      <p style={{ fontSize:13, fontWeight:800, color:'#1e293b', margin:0 }}>📍 {t.geoPage.zoneName}s</p>
+                      <p style={{ fontSize:11, color:'#94a3b8', margin:0 }}>Zones pour {communes.find(x=>x._id===selectedCid)?.name}</p>
+                    </div>
+                    {!isAddingZone && (
+                      <button onClick={() => setIsAddingZone(true)} 
+                        style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, fontWeight:700, color:'#3b82f6', background:'white', border:'1px solid #3b82f6', padding:'6px 12px', borderRadius:8, cursor:'pointer' }}>
+                        <Plus size={14} /> {t.geoPage.addZone || 'Ajouter Zone'}
+                      </button>
+                    )}
+                  </div>
+
+                  {isAddingZone && (
+                    <div style={{ display:'flex', gap:8, marginBottom:16 }}>
+                      <input 
+                        autoFocus
+                        placeholder="Zone..."
+                        value={newZoneName}
+                        onChange={e => setNewZoneName(e.target.value)}
+                        style={{ flex:1, border:'1px solid #cbd5e1', borderRadius:8, padding:'8px 12px', fontSize:12, outline:'none' }}
+                        onKeyDown={e => e.key === 'Enter' && handleCreateZone()}
+                      />
+                      <button onClick={handleCreateZone} disabled={isGeoLoading || !newZoneName.trim()} 
+                        style={{ padding:'8px 16px', background:'#059669', color:'white', border:'none', borderRadius:8, cursor:'pointer', fontWeight:700, fontSize:12 }}>
+                        {t.wilayaInfraPage.save}
+                      </button>
+                      <button onClick={() => { setIsAddingZone(false); setNewZoneName(''); }} 
+                        style={{ padding:'8px', color:'#64748b', cursor:'pointer', background:'none', border:'none' }}>
+                        <X size={18} />
+                      </button>
+                    </div>
+                  )}
+
+                  <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
+                    {zones.length > 0 ? zones.map(z => (
+                      <div key={z._id} style={{ display:'flex', alignItems:'center', gap:6, padding:'6px 10px', background:'white', border:'1px solid #cbd5e1', borderRadius:8, fontSize:12, color:'#475569' }}>
+                        <span>{z.name}</span>
+                        <button onClick={() => handleDeleteZone(z._id)} style={{ border:'none', background:'none', cursor:'pointer', color:'#94a3b8' }}>
+                          <X size={12} />
+                        </button>
+                      </div>
+                    )) : (
+                      <p style={{ fontSize:12, color:'#94a3b8', margin:0 }}>{t.geoPage.noZones || 'Aucune zone'}</p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

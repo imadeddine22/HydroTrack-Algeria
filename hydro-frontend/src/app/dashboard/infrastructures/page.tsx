@@ -26,7 +26,11 @@ function Sel({ label, value, onChange, items, disabled }: { label: string; value
       <select value={value} disabled={disabled} onChange={e => onChange(e.target.value)}
         style={{ width: '100%', appearance: 'none', background: 'white', border: '1px solid #e5e7eb', borderRadius: 12, padding: '10px 36px 10px 14px', fontSize: 13, fontWeight: 600, color: '#112347', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1 }}>
         <option value="">{label}</option>
-        {items.map(i => <option key={i._id} value={i._id}>{i.name}</option>)}
+        {items.sort((a,b)=>(Number((a as any).code)||99)-(Number((b as any).code)||99)).map(i => (
+          <option key={i._id} value={i._id}>
+            {(i as any).code ? `${(i as any).code} - ` : ''}{i.name}
+          </option>
+        ))}
       </select>
       <ChevronDown size={14} color="#9ca3af" style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
     </div>
