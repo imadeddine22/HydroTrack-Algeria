@@ -28,7 +28,7 @@ router.get('/:id', async (req, res) => {
 // POST /api/communes (Supports bulk via array or comma-separated names)
 router.post('/', async (req, res) => {
   try {
-    const { name, names, wilayaId } = req.body;
+    const { name, name_ar, name_en, names, wilayaId } = req.body;
     
     // Support bulk via 'names' array
     if (Array.isArray(names)) {
@@ -45,7 +45,7 @@ router.post('/', async (req, res) => {
       return res.status(201).json(created);
     }
 
-    const c = await Commune.create({ name, wilayaId });
+    const c = await Commune.create({ name, name_ar, name_en, wilayaId });
     res.status(201).json(c);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -55,9 +55,11 @@ router.post('/', async (req, res) => {
 // PUT /api/communes/:id
 router.put('/:id', async (req, res) => {
   try {
-    const { name, wilayaId } = req.body;
+    const { name, name_ar, name_en, wilayaId } = req.body;
     const updates = {};
     if (name !== undefined) updates.name = name;
+    if (name_ar !== undefined) updates.name_ar = name_ar;
+    if (name_en !== undefined) updates.name_en = name_en;
     if (wilayaId !== undefined) updates.wilayaId = wilayaId;
 
     const c = await Commune.findByIdAndUpdate(req.params.id, updates, { new: true });

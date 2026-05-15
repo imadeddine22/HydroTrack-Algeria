@@ -73,6 +73,8 @@ export default function WilayaInfraPage() {
   // Geo Management state
   const [isAddingWilaya, setIsAddingWilaya] = useState(false);
   const [newWilayaName, setNewWilayaName] = useState('');
+  const [newWilayaNameAr, setNewWilayaNameAr] = useState('');
+  const [newWilayaNameEn, setNewWilayaNameEn] = useState('');
   const [newWilayaCode, setNewWilayaCode] = useState('');
   const [editingWilaya, setEditingWilaya] = useState<Wilaya | null>(null);
   const [isGeoLoading, setIsGeoLoading] = useState(false);
@@ -81,9 +83,13 @@ export default function WilayaInfraPage() {
   const [zones, setZones] = useState<{_id:string, name:string}[]>([]);
   const [isAddingCommune, setIsAddingCommune] = useState(false);
   const [newCommuneName, setNewCommuneName] = useState('');
+  const [newCommuneNameAr, setNewCommuneNameAr] = useState('');
+  const [newCommuneNameEn, setNewCommuneNameEn] = useState('');
   const [editingCommune, setEditingCommune] = useState<{_id:string, name:string} | null>(null);
   const [isAddingZone, setIsAddingZone] = useState(false);
   const [newZoneName, setNewZoneName] = useState('');
+  const [newZoneNameAr, setNewZoneNameAr] = useState('');
+  const [newZoneNameEn, setNewZoneNameEn] = useState('');
   const [editingZone, setEditingZone] = useState<{_id:string, name:string} | null>(null);
 
   useEffect(() => { api.get('/api/wilayas').then(setWilayas).catch(() => {}); }, []);
@@ -124,12 +130,14 @@ export default function WilayaInfraPage() {
     try {
       const res = await api.post('/api/wilayas', { 
         name: newWilayaName.trim(), 
+        name_ar: newWilayaNameAr.trim() || null,
+        name_en: newWilayaNameEn.trim() || null,
         code: newWilayaCode.trim() 
       });
       const all = await api.get('/api/wilayas');
       setWilayas(all);
       setIsAddingWilaya(false);
-      setNewWilayaName('');
+      setNewWilayaName(''); setNewWilayaNameAr(''); setNewWilayaNameEn('');
       setNewWilayaCode('');
       handleWilaya(res._id);
     } catch (e) {}
@@ -142,20 +150,24 @@ export default function WilayaInfraPage() {
     try {
       await api.put(`/api/wilayas/${editingWilaya._id}`, { 
         name: newWilayaName.trim(), 
+        name_ar: newWilayaNameAr.trim() || null,
+        name_en: newWilayaNameEn.trim() || null,
         code: newWilayaCode.trim() 
       });
       const all = await api.get('/api/wilayas');
       setWilayas(all);
       setEditingWilaya(null);
-      setNewWilayaName('');
+      setNewWilayaName(''); setNewWilayaNameAr(''); setNewWilayaNameEn('');
       setNewWilayaCode('');
     } catch (e) {}
     setIsGeoLoading(false);
   };
 
-  const startEditWilaya = (wil: Wilaya) => {
+  const startEditWilaya = (wil: any) => {
     setEditingWilaya(wil);
     setNewWilayaName(wil.name);
+    setNewWilayaNameAr(wil.name_ar || '');
+    setNewWilayaNameEn(wil.name_en || '');
     setNewWilayaCode(wil.code || '');
     setIsAddingWilaya(true);
   };
@@ -178,16 +190,22 @@ export default function WilayaInfraPage() {
     if (!newCommuneName.trim() || !wid) return;
     setIsGeoLoading(true);
     try {
+      const body = { 
+        name: newCommuneName.trim(),
+        name_ar: newCommuneNameAr.trim() || null,
+        name_en: newCommuneNameEn.trim() || null,
+        wilayaId: wid 
+      };
       if (editingCommune) {
-        await api.put(`/api/communes/${editingCommune._id}`, { name: newCommuneName.trim() });
+        await api.put(`/api/communes/${editingCommune._id}`, body);
       } else {
-        await api.post('/api/communes', { name: newCommuneName.trim(), wilayaId: wid });
+        await api.post('/api/communes', body);
       }
       const res = await api.get(`/api/communes?wilayaId=${wid}`);
       setCommunes(res);
       setIsAddingCommune(false);
       setEditingCommune(null);
-      setNewCommuneName('');
+      setNewCommuneName(''); setNewCommuneNameAr(''); setNewCommuneNameEn('');
     } catch (e) {}
     setIsGeoLoading(false);
   };
@@ -211,16 +229,22 @@ export default function WilayaInfraPage() {
     if (!newZoneName.trim() || !selectedCid) return;
     setIsGeoLoading(true);
     try {
+      const body = { 
+        name: newZoneName.trim(),
+        name_ar: newZoneNameAr.trim() || null,
+        name_en: newZoneNameEn.trim() || null,
+        communeId: selectedCid 
+      };
       if (editingZone) {
-        await api.put(`/api/zones/${editingZone._id}`, { name: newZoneName.trim() });
+        await api.put(`/api/zones/${editingZone._id}`, body);
       } else {
-        await api.post('/api/zones', { name: newZoneName.trim(), communeId: selectedCid });
+        await api.post('/api/zones', body);
       }
       const res = await api.get(`/api/zones?communeId=${selectedCid}`);
       setZones(res);
       setIsAddingZone(false);
       setEditingZone(null);
-      setNewZoneName('');
+      setNewZoneName(''); setNewZoneNameAr(''); setNewZoneNameEn('');
     } catch (e) {}
     setIsGeoLoading(false);
   };
@@ -312,29 +336,60 @@ export default function WilayaInfraPage() {
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
             <p style={{ fontSize:12, fontWeight:700, color:'#112347', margin:0 }}>{w.selectWilaya}</p>
             <div style={{ display:'flex', gap:8 }}>
-              {isAddingWilaya ? (
-                <div style={{ display:'flex', gap:4, alignItems:'center' }}>
-                  <input 
-                    placeholder="01"
-                    value={newWilayaCode}
-                    onChange={e => setNewWilayaCode(e.target.value)}
-                    style={{ border:'1px solid #3b82f6', borderRadius:8, padding:'4px 8px', fontSize:12, outline:'none', width:40 }}
-                  />
-                  <input 
-                    autoFocus
-                    placeholder={t.geoPage.wilayaName}
-                    value={newWilayaName}
-                    onChange={e => setNewWilayaName(e.target.value)}
-                    style={{ border:'1px solid #3b82f6', borderRadius:8, padding:'4px 8px', fontSize:12, outline:'none' }}
-                  />
-                  <button onClick={editingWilaya ? handleUpdateWilaya : handleCreateWilaya} disabled={isGeoLoading || !newWilayaName.trim()} 
-                    style={{ background:'#059669', color:'white', border:'none', borderRadius:8, padding:'4px 12px', cursor:'pointer', fontWeight:700, fontSize:11, display:'flex', alignItems:'center', gap:4 }}>
-                    {isGeoLoading ? <Loader2 size={14} className="animate-spin" /> : <Check size={16} />}
-                    {editingWilaya ? t.geoPage.modification : t.geoPage.save}
-                  </button>
-                  <button onClick={() => {setIsAddingWilaya(false); setEditingWilaya(null); setNewWilayaName(''); setNewWilayaCode('');}} style={{ color:'#ef4444', background:'transparent', border:'none', cursor:'pointer' }}>
-                    <X size={18} />
-                  </button>
+               {isAddingWilaya ? (
+                <div style={{ display:'flex', flexWrap:'wrap', gap:8, alignItems:'center', background:'#f0f9ff', padding:12, borderRadius:12, border:'1px solid #bae6fd' }}>
+                  <div style={{ display:'flex', gap:4, alignItems:'center' }}>
+                    <span style={{ fontSize:10, fontWeight:800, color:'#0369a1' }}>CODE:</span>
+                    <input 
+                      placeholder="01"
+                      value={newWilayaCode}
+                      onChange={e => setNewWilayaCode(e.target.value)}
+                      style={{ border:'1px solid #7dd3fc', borderRadius:8, padding:'4px 8px', fontSize:12, outline:'none', width:45 }}
+                    />
+                  </div>
+                  <div style={{ display:'flex', gap:4, flex:1, minWidth:200 }}>
+                    <input 
+                      autoFocus
+                      placeholder="Wilaya (FR)"
+                      value={newWilayaName}
+                      onChange={e => setNewWilayaName(e.target.value)}
+                      style={{ flex:1, border:'1px solid #7dd3fc', borderRadius:8, padding:'4px 8px', fontSize:12, outline:'none' }}
+                    />
+                    <input 
+                      placeholder="الولاية (AR)"
+                      value={newWilayaNameAr}
+                      onChange={e => setNewWilayaNameAr(e.target.value)}
+                      style={{ flex:1, border:'1px solid #7dd3fc', borderRadius:8, padding:'4px 8px', fontSize:12, outline:'none', textAlign:'right' }}
+                    />
+                    <input 
+                      placeholder="Wilaya (EN)"
+                      value={newWilayaNameEn}
+                      onChange={e => setNewWilayaNameEn(e.target.value)}
+                      style={{ flex:1, border:'1px solid #7dd3fc', borderRadius:8, padding:'4px 8px', fontSize:12, outline:'none' }}
+                    />
+                    <button 
+                      onClick={async () => {
+                        const tr = await autoTranslate(newWilayaName);
+                        if (tr.ar) setNewWilayaNameAr(tr.ar);
+                        if (tr.en) setNewWilayaNameEn(tr.en);
+                      }}
+                      title="Auto Translate"
+                      style={{ border:'none', background:'#3b82f6', color:'white', borderRadius:8, padding:'4px 8px', cursor:'pointer' }}
+                    >
+                      ✨
+                    </button>
+                  </div>
+                  <div style={{ display:'flex', gap:4 }}>
+                    <button onClick={editingWilaya ? handleUpdateWilaya : handleCreateWilaya} disabled={isGeoLoading || !newWilayaName.trim()} 
+                      style={{ background:'#059669', color:'white', border:'none', borderRadius:8, padding:'6px 14px', cursor:'pointer', fontWeight:700, fontSize:11, display:'flex', alignItems:'center', gap:4 }}>
+                      {isGeoLoading ? <Loader2 size={14} className="animate-spin" /> : <Check size={16} />}
+                      {editingWilaya ? t.geoPage.modification : t.geoPage.save}
+                    </button>
+                    <button onClick={() => {setIsAddingWilaya(false); setEditingWilaya(null); setNewWilayaName(''); setNewWilayaNameAr(''); setNewWilayaNameEn(''); setNewWilayaCode('');}} 
+                      style={{ color:'#ef4444', background:'white', border:'1px solid #fecaca', borderRadius:8, padding:'6px', cursor:'pointer' }}>
+                      <X size={16} />
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <button onClick={() => setIsAddingWilaya(true)} style={{ display:'flex', alignItems:'center', gap:4, fontSize:11, fontWeight:700, color:'#3b82f6', background:'#eff6ff', border:'none', padding:'4px 8px', borderRadius:8, cursor:'pointer' }}>
@@ -351,7 +406,8 @@ export default function WilayaInfraPage() {
                 <option value="">{w.chooseWilaya}</option>
                 {[...wilayas].sort((a,b)=>(Number(a.code)||99)-(Number(b.code)||99)).map(wilaya => (
                   <option key={wilaya._id} value={wilaya._id}>
-                    {wilaya.code ? `${wilaya.code} - ` : ''}{wilaya.name}
+                    {wilaya.code ? `${wilaya.code} - ` : ''}
+                    {lang === 'ar' ? (wilaya.name_ar || wilaya.name) : (lang === 'en' ? (wilaya.name_en || wilaya.name) : wilaya.name)}
                   </option>
                 ))}
               </select>
@@ -390,24 +446,56 @@ export default function WilayaInfraPage() {
                   <label style={{ fontSize:11, fontWeight:800, color:'#64748b', display:'block', marginBottom:8 }}>
                     {editingCommune ? t.geoPage.modification : t.geoPage.communeName} {lang === 'ar' && !editingCommune && '(أدخل بلديات متعددة مفصولة بفواصل)'}
                   </label>
-                  <div style={{ display:'flex', gap:8 }}>
-                    <input 
-                      autoFocus
-                      placeholder={editingCommune ? "" : "أدرار, تامست, رقان..."}
-                      value={newCommuneName}
-                      onChange={e => setNewCommuneName(e.target.value)}
-                      style={{ flex:1, border:'1.5px solid #e2e8f0', borderRadius:10, padding:'10px 14px', fontSize:13, outline:'none', background:'white' }}
-                      onKeyDown={e => e.key === 'Enter' && handleCreateCommune()}
-                    />
-                    <button onClick={handleCreateCommune} disabled={isGeoLoading || !newCommuneName.trim()} 
-                      style={{ padding:'10px 20px', background:'#059669', color:'white', border:'none', borderRadius:10, cursor:'pointer', fontWeight:700, fontSize:13, display:'flex', alignItems:'center', gap:6 }}>
-                      {isGeoLoading ? <Loader2 size={16} className="animate-spin" /> : <Check size={18} />}
-                      {t.geoPage.save}
-                    </button>
-                    <button onClick={() => { setIsAddingCommune(false); setEditingCommune(null); setNewCommuneName(''); }} 
-                      style={{ padding:'10px', background:'#fff', border:'1.5px solid #e2e8f0', borderRadius:10, cursor:'pointer', color:'#64748b' }}>
-                      <X size={18} />
-                    </button>
+                  <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                    <div style={{ display:'flex', gap:8 }}>
+                      <input 
+                        autoFocus
+                        placeholder={editingCommune ? "Commune (FR)" : "أدرار, تامست, رقان..."}
+                        value={newCommuneName}
+                        onChange={e => setNewCommuneName(e.target.value)}
+                        style={{ flex:1, border:'1.5px solid #e2e8f0', borderRadius:10, padding:'10px 14px', fontSize:13, outline:'none', background:'white' }}
+                        onKeyDown={e => e.key === 'Enter' && handleCreateCommune()}
+                      />
+                      {editingCommune && (
+                        <button 
+                          onClick={async () => {
+                            const tr = await autoTranslate(newCommuneName);
+                            if (tr.ar) setNewCommuneNameAr(tr.ar);
+                            if (tr.en) setNewCommuneNameEn(tr.en);
+                          }}
+                          style={{ border:'none', background:'#3b82f6', color:'white', borderRadius:10, padding:'0 15px', cursor:'pointer' }}
+                        >
+                          ✨ Translate
+                        </button>
+                      )}
+                    </div>
+                    {editingCommune && (
+                      <div style={{ display:'flex', gap:8 }}>
+                        <input 
+                          placeholder="البلدية (AR)"
+                          value={newCommuneNameAr}
+                          onChange={e => setNewCommuneNameAr(e.target.value)}
+                          style={{ flex:1, border:'1.5px solid #e2e8f0', borderRadius:10, padding:'10px 14px', fontSize:13, outline:'none', textAlign:'right' }}
+                        />
+                        <input 
+                          placeholder="Commune (EN)"
+                          value={newCommuneNameEn}
+                          onChange={e => setNewCommuneNameEn(e.target.value)}
+                          style={{ flex:1, border:'1.5px solid #e2e8f0', borderRadius:10, padding:'10px 14px', fontSize:13, outline:'none' }}
+                        />
+                      </div>
+                    )}
+                    <div style={{ display:'flex', gap:8, justifyContent:'flex-end' }}>
+                      <button onClick={() => { setIsAddingCommune(false); setEditingCommune(null); setNewCommuneName(''); setNewCommuneNameAr(''); setNewCommuneNameEn(''); }} 
+                        style={{ padding:'10px 20px', background:'#fff', border:'1.5px solid #e2e8f0', borderRadius:10, cursor:'pointer', color:'#64748b', fontWeight:600 }}>
+                        {t.geoPage.cancel || 'Annuler'}
+                      </button>
+                      <button onClick={handleCreateCommune} disabled={isGeoLoading || !newCommuneName.trim()} 
+                        style={{ padding:'10px 25px', background:'#059669', color:'white', border:'none', borderRadius:10, cursor:'pointer', fontWeight:700, fontSize:13, display:'flex', alignItems:'center', gap:6 }}>
+                        {isGeoLoading ? <Loader2 size={16} className="animate-spin" /> : <Check size={18} />}
+                        {t.geoPage.save}
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -423,9 +511,18 @@ export default function WilayaInfraPage() {
                       boxShadow: selectedCid === c._id ? '0 4px 12px rgba(59, 130, 246, 0.15)' : 'none'
                     }}
                   >
-                    <span>{c.name}</span>
+                    <span>
+                      {lang === 'ar' ? (c.name_ar || c.name) : (lang === 'en' ? (c.name_en || c.name) : c.name)}
+                    </span>
                     <div style={{display:'flex', gap:4}}>
-                      <button onClick={(e) => { e.stopPropagation(); setEditingCommune(c); setNewCommuneName(c.name); setIsAddingCommune(true); }} 
+                      <button onClick={(e) => { 
+                        e.stopPropagation(); 
+                        setEditingCommune(c); 
+                        setNewCommuneName(c.name); 
+                        setNewCommuneNameAr(c.name_ar || '');
+                        setNewCommuneNameEn(c.name_en || '');
+                        setIsAddingCommune(true); 
+                      }} 
                         style={{ border:'none', background:'transparent', cursor:'pointer', color:'#cbd5e1', padding:0, display:'flex', transition:'color 0.2s' }}
                         onMouseEnter={e => e.currentTarget.style.color = '#3b82f6'}
                         onMouseLeave={e => e.currentTarget.style.color = '#cbd5e1'}
@@ -465,33 +562,68 @@ export default function WilayaInfraPage() {
                   </div>
 
                   {isAddingZone && (
-                    <div style={{ display:'flex', gap:8, marginBottom:16 }}>
-                      <input 
-                        autoFocus
-                        placeholder={editingZone ? "" : "Zone..."}
-                        value={newZoneName}
-                        onChange={e => setNewZoneName(e.target.value)}
-                        style={{ flex:1, border:'1px solid #cbd5e1', borderRadius:8, padding:'8px 12px', fontSize:12, outline:'none' }}
-                        onKeyDown={e => e.key === 'Enter' && handleCreateZone()}
-                      />
-                      <button onClick={handleCreateZone} disabled={isGeoLoading || !newZoneName.trim()} 
-                        style={{ padding:'8px 16px', background:'#3b82f6', color:'white', border:'none', borderRadius:8, cursor:'pointer', fontWeight:700, fontSize:12, display:'flex', alignItems:'center', gap:6 }}>
-                        {isGeoLoading ? <Loader2 size={14} className="animate-spin" /> : <Check size={16} />}
-                        {editingZone ? t.geoPage.modification : t.geoPage.save}
-                      </button>
-                      <button onClick={() => { setIsAddingZone(false); setEditingZone(null); setNewZoneName(''); }} 
-                        style={{ padding:'8px', background:'white', border:'1px solid #cbd5e1', borderRadius:8, cursor:'pointer', color:'#64748b' }}>
-                        <X size={16} />
-                      </button>
+                    <div style={{ background:'white', padding:12, borderRadius:12, border:'1px solid #e2e8f0', marginBottom:16 }}>
+                      <div style={{ display:'flex', gap:8, marginBottom:8 }}>
+                        <input 
+                          autoFocus
+                          placeholder="Zone (FR)"
+                          value={newZoneName}
+                          onChange={e => setNewZoneName(e.target.value)}
+                          style={{ flex:1, border:'1px solid #cbd5e1', borderRadius:8, padding:'8px 12px', fontSize:12, outline:'none' }}
+                        />
+                        <button 
+                          onClick={async () => {
+                            const tr = await autoTranslate(newZoneName);
+                            if (tr.ar) setNewZoneNameAr(tr.ar);
+                            if (tr.en) setNewZoneNameEn(tr.en);
+                          }}
+                          style={{ border:'none', background:'#3b82f6', color:'white', borderRadius:8, padding:'0 10px', cursor:'pointer', fontSize:11 }}
+                        >
+                          ✨ Auto
+                        </button>
+                      </div>
+                      <div style={{ display:'flex', gap:8, marginBottom:12 }}>
+                        <input 
+                          placeholder="المنطقة (AR)"
+                          value={newZoneNameAr}
+                          onChange={e => setNewZoneNameAr(e.target.value)}
+                          style={{ flex:1, border:'1px solid #cbd5e1', borderRadius:8, padding:'8px 12px', fontSize:12, outline:'none', textAlign:'right' }}
+                        />
+                        <input 
+                          placeholder="Zone (EN)"
+                          value={newZoneNameEn}
+                          onChange={e => setNewZoneNameEn(e.target.value)}
+                          style={{ flex:1, border:'1px solid #cbd5e1', borderRadius:8, padding:'8px 12px', fontSize:12, outline:'none' }}
+                        />
+                      </div>
+                      <div style={{ display:'flex', gap:8, justifyContent:'flex-end' }}>
+                        <button onClick={() => { setIsAddingZone(false); setEditingZone(null); setNewZoneName(''); setNewZoneNameAr(''); setNewZoneNameEn(''); }} 
+                          style={{ padding:'6px 12px', background:'white', border:'1px solid #cbd5e1', borderRadius:8, cursor:'pointer', color:'#64748b', fontSize:11 }}>
+                          {t.geoPage.cancel || 'Annuler'}
+                        </button>
+                        <button onClick={handleCreateZone} disabled={isGeoLoading || !newZoneName.trim()}
+                          style={{ padding:'6px 16px', background:'#3b82f6', color:'white', border:'none', borderRadius:8, cursor:'pointer', fontWeight:700, fontSize:11, display:'flex', alignItems:'center', gap:6 }}>
+                          {isGeoLoading ? <Loader2 size={12} className="animate-spin" /> : <Check size={14} />}
+                          {editingZone ? t.geoPage.modification : t.geoPage.save}
+                        </button>
+                      </div>
                     </div>
                   )}
 
                   <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
                     {zones.length > 0 ? zones.map(z => (
                       <div key={z._id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 12px', background:'white', borderRadius:10, border:'1px solid #e2e8f0' }}>
-                        <span style={{ fontSize:12, color:'#334155', fontWeight:500 }}>{z.name}</span>
+                        <span style={{ fontSize:12, color:'#334155', fontWeight:500 }}>
+                          {lang === 'ar' ? (z.name_ar || z.name) : (lang === 'en' ? (z.name_en || z.name) : z.name)}
+                        </span>
                         <div style={{ display:'flex', gap:6 }}>
-                          <button onClick={() => { setEditingZone(z); setNewZoneName(z.name); setIsAddingZone(true); }}
+                          <button onClick={() => { 
+                            setEditingZone(z); 
+                            setNewZoneName(z.name); 
+                            setNewZoneNameAr(z.name_ar || '');
+                            setNewZoneNameEn(z.name_en || '');
+                            setIsAddingZone(true); 
+                          }}
                             style={{ border:'none', background:'transparent', cursor:'pointer', color:'#94a3b8' }}>
                             <RefreshCw size={14} />
                           </button>
