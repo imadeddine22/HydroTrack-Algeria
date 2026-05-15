@@ -1,15 +1,13 @@
 const express = require('express');
-const router  = express.Router();
-const Zone    = require('../models/Zone');
+const router = express.Router();
+const Zone = require('../models/Zone');
 
-// GET /api/zones?communeId=...
+// GET /api/zones
 router.get('/', async (req, res) => {
   try {
     const filter = {};
     if (req.query.communeId) filter.communeId = req.query.communeId;
-    const zones = await Zone.find(filter)
-      .populate({ path: 'communeId', select: 'name', populate: { path: 'wilayaId', select: 'name' } })
-      .sort({ name: 1 });
+    const zones = await Zone.find(filter).populate('communeId');
     res.json(zones);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -19,8 +17,8 @@ router.get('/', async (req, res) => {
 // GET /api/zones/:id
 router.get('/:id', async (req, res) => {
   try {
-    const z = await Zone.findById(req.params.id).populate({ path: 'communeId', populate: { path: 'wilayaId' } });
-    if (!z) return res.status(404).json({ error: 'Zone not found' });
+    const z = await Zone.findById(req.params.id).populate('communeId');
+    if (!z) return res.status(404).json({ error: 'Not found' });
     res.json(z);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -49,7 +47,7 @@ router.put('/:id', async (req, res) => {
     if (communeId !== undefined) updates.communeId = communeId;
 
     const z = await Zone.findByIdAndUpdate(req.params.id, updates, { new: true });
-    if (!z) return res.status(404).json({ error: 'Zone not found' });
+    if (!z) return res.status(404).json({ error: 'Not found' });
     res.json(z);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -59,8 +57,9 @@ router.put('/:id', async (req, res) => {
 // DELETE /api/zones/:id
 router.delete('/:id', async (req, res) => {
   try {
-    await Zone.findByIdAndDelete(req.params.id);
-    res.json({ success: true });
+    const z = await Zone.findByIdAndDelete(req.params.id);
+    if (!z) return res.status(404).json({ error: 'Not found' });
+    res.json({ message: 'Deleted successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
