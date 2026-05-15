@@ -1,14 +1,14 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Plus, X, Save, Droplets, Building2, Waves, ChevronDown, Trash2, Check, Loader2 } from 'lucide-react';
+import { Plus, X, Save, Droplets, Building2, Waves, ChevronDown, Trash2, Check, Loader2, RefreshCw } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useLang } from '@/lib/i18n/LanguageContext';
 import { type Lang } from '@/lib/i18n/translations';
 import CyberInfraCard from '@/components/CyberInfraCard';
 import CyberButton from '@/components/CyberButton';
 
-interface Wilaya { _id: string; name: string; code?: string; }
+interface Wilaya { _id: string; name: string; name_ar?: string; name_en?: string; code?: string; }
 interface WInfra {
   _id: string; wilayaId: { _id: string; name: string } | string;
   name: string; type: 'forage' | 'chateau_eau' | 'barrage';
@@ -78,19 +78,19 @@ export default function WilayaInfraPage() {
   const [newWilayaCode, setNewWilayaCode] = useState('');
   const [editingWilaya, setEditingWilaya] = useState<Wilaya | null>(null);
   const [isGeoLoading, setIsGeoLoading] = useState(false);
-  const [communes, setCommunes] = useState<{_id:string, name:string}[]>([]);
+  const [communes, setCommunes] = useState<{_id:string, name:string, name_ar?:string, name_en?:string}[]>([]);
   const [selectedCid, setSelectedCid] = useState('');
-  const [zones, setZones] = useState<{_id:string, name:string}[]>([]);
+  const [zones, setZones] = useState<{_id:string, name:string, name_ar?:string, name_en?:string}[]>([]);
   const [isAddingCommune, setIsAddingCommune] = useState(false);
   const [newCommuneName, setNewCommuneName] = useState('');
   const [newCommuneNameAr, setNewCommuneNameAr] = useState('');
   const [newCommuneNameEn, setNewCommuneNameEn] = useState('');
-  const [editingCommune, setEditingCommune] = useState<{_id:string, name:string} | null>(null);
+  const [editingCommune, setEditingCommune] = useState<{_id:string, name:string, name_ar?:string, name_en?:string} | null>(null);
   const [isAddingZone, setIsAddingZone] = useState(false);
   const [newZoneName, setNewZoneName] = useState('');
   const [newZoneNameAr, setNewZoneNameAr] = useState('');
   const [newZoneNameEn, setNewZoneNameEn] = useState('');
-  const [editingZone, setEditingZone] = useState<{_id:string, name:string} | null>(null);
+  const [editingZone, setEditingZone] = useState<{_id:string, name:string, name_ar?:string, name_en?:string} | null>(null);
 
   useEffect(() => { api.get('/api/wilayas').then(setWilayas).catch(() => {}); }, []);
 
@@ -369,9 +369,12 @@ export default function WilayaInfraPage() {
                     />
                     <button 
                       onClick={async () => {
-                        const tr = await autoTranslate(newWilayaName);
-                        if (tr.ar) setNewWilayaNameAr(tr.ar);
-                        if (tr.en) setNewWilayaNameEn(tr.en);
+                        const [ar, en] = await Promise.all([
+                          autoTranslate(newWilayaName, 'fr', 'ar'),
+                          autoTranslate(newWilayaName, 'fr', 'en'),
+                        ]);
+                        if (ar) setNewWilayaNameAr(ar);
+                        if (en) setNewWilayaNameEn(en);
                       }}
                       title="Auto Translate"
                       style={{ border:'none', background:'#3b82f6', color:'white', borderRadius:8, padding:'4px 8px', cursor:'pointer' }}
@@ -459,9 +462,12 @@ export default function WilayaInfraPage() {
                       {editingCommune && (
                         <button 
                           onClick={async () => {
-                            const tr = await autoTranslate(newCommuneName);
-                            if (tr.ar) setNewCommuneNameAr(tr.ar);
-                            if (tr.en) setNewCommuneNameEn(tr.en);
+                            const [ar, en] = await Promise.all([
+                              autoTranslate(newCommuneName, 'fr', 'ar'),
+                              autoTranslate(newCommuneName, 'fr', 'en'),
+                            ]);
+                            if (ar) setNewCommuneNameAr(ar);
+                            if (en) setNewCommuneNameEn(en);
                           }}
                           style={{ border:'none', background:'#3b82f6', color:'white', borderRadius:10, padding:'0 15px', cursor:'pointer' }}
                         >
@@ -573,9 +579,12 @@ export default function WilayaInfraPage() {
                         />
                         <button 
                           onClick={async () => {
-                            const tr = await autoTranslate(newZoneName);
-                            if (tr.ar) setNewZoneNameAr(tr.ar);
-                            if (tr.en) setNewZoneNameEn(tr.en);
+                            const [ar, en] = await Promise.all([
+                              autoTranslate(newZoneName, 'fr', 'ar'),
+                              autoTranslate(newZoneName, 'fr', 'en'),
+                            ]);
+                            if (ar) setNewZoneNameAr(ar);
+                            if (en) setNewZoneNameEn(en);
                           }}
                           style={{ border:'none', background:'#3b82f6', color:'white', borderRadius:8, padding:'0 10px', cursor:'pointer', fontSize:11 }}
                         >

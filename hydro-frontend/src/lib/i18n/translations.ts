@@ -386,6 +386,7 @@ export const translations = {
       confirmDeleteZone: 'Voulez-vous vraiment supprimer cette zone ?',
       modification: 'Modification',
       save: 'Enregistrer',
+      cancel: 'Annuler',
     }
   },
 
@@ -766,6 +767,7 @@ export const translations = {
       confirmDeleteZone: 'Do you really want to delete this zone?',
       modification: 'Edit',
       save: 'Save',
+      cancel: 'Cancel',
     }
   },
 
@@ -1145,6 +1147,7 @@ export const translations = {
       confirmDeleteZone: 'هل تريد حقاً حذف هذه المنطقة؟',
       modification: 'تعديل',
       save: 'حفظ',
+      cancel: 'إلغاء',
     }
   },
 };
