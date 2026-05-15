@@ -17,7 +17,6 @@ export const translations = {
       data: 'Données',
       messages: 'Messages',
       settings: 'Paramètres',
-      geo: 'Gérer Territoire',
       logout: 'Déconnexion',
     },
     // Hero
@@ -739,23 +738,6 @@ export const translations = {
       backLink: 'Back to site',
       homePage: 'Home page',
     },
-    geoPage: {
-      title: '🗺️ Territory Management',
-      desc: 'Add or delete Wilayas and their Communes.',
-      addWilaya: 'Add Wilaya',
-      addCommune: 'Add Commune',
-      deleteWilaya: 'Delete Wilaya',
-      deleteCommune: 'Delete Commune',
-      wilayaName: 'Wilaya Name',
-      communeName: 'Commune Name',
-      confirmDeleteWilaya: 'Do you really want to delete this wilaya and all its communes?',
-      confirmDeleteCommune: 'Do you really want to delete this commune?',
-      noCommunes: 'No communes registered for this wilaya.',
-      searchWilaya: 'Search for a wilaya...',
-      wilayaAdded: 'Wilaya added successfully!',
-      communeAdded: 'Commune added successfully!',
-      deleted: 'Deleted!',
-    }
     geoPage: {
       title: '🗺️ Territory Management',
       desc: 'Add or delete Wilayas and their Communes.',
