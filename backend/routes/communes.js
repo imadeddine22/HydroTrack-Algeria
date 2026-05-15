@@ -25,10 +25,26 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /api/communes
+// POST /api/communes (Supports bulk via array or comma-separated names)
 router.post('/', async (req, res) => {
   try {
-    const { name, wilayaId } = req.body;
+    const { name, names, wilayaId } = req.body;
+    
+    // Support bulk via 'names' array
+    if (Array.isArray(names)) {
+      const docs = names.map(n => ({ name: n.trim(), wilayaId }));
+      const created = await Commune.insertMany(docs);
+      return res.status(201).json(created);
+    }
+
+    // Support bulk via comma-separated 'name' string
+    if (name && name.includes(',')) {
+      const parts = name.split(',').map(n => n.trim()).filter(n => n);
+      const docs = parts.map(n => ({ name: n, wilayaId }));
+      const created = await Commune.insertMany(docs);
+      return res.status(201).json(created);
+    }
+
     const c = await Commune.create({ name, wilayaId });
     res.status(201).json(c);
   } catch (err) {

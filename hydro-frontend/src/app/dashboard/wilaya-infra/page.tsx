@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Plus, X, Save, Droplets, Building2, Waves, ChevronDown } from 'lucide-react';
+import { Plus, X, Save, Droplets, Building2, Waves, ChevronDown, Trash2, Check, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useLang } from '@/lib/i18n/LanguageContext';
 import { type Lang } from '@/lib/i18n/translations';
@@ -70,6 +70,14 @@ export default function WilayaInfraPage() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
 
+  // Geo Management state
+  const [isAddingWilaya, setIsAddingWilaya] = useState(false);
+  const [newWilayaName, setNewWilayaName] = useState('');
+  const [isGeoLoading, setIsGeoLoading] = useState(false);
+  const [communes, setCommunes] = useState<{_id:string, name:string}[]>([]);
+  const [isAddingCommune, setIsAddingCommune] = useState(false);
+  const [newCommuneName, setNewCommuneName] = useState('');
+
   useEffect(() => { api.get('/api/wilayas').then(setWilayas).catch(() => {}); }, []);
 
   const loadItems = (wilayaId: string) => {
@@ -81,7 +89,67 @@ export default function WilayaInfraPage() {
       .finally(() => setLoading(false));
   };
 
-  const handleWilaya = (id: string) => { setWid(id); loadItems(id); };
+  const handleWilaya = (id: string) => { 
+    setWid(id); 
+    loadItems(id);
+    if (id) {
+      api.get(`/api/communes?wilayaId=${id}`).then(setCommunes).catch(() => {});
+    } else {
+      setCommunes([]);
+    }
+  };
+
+  const handleCreateWilaya = async () => {
+    if (!newWilayaName.trim()) return;
+    setIsGeoLoading(true);
+    try {
+      const res = await api.post('/api/wilayas', { name: newWilayaName.trim() });
+      const all = await api.get('/api/wilayas');
+      setWilayas(all);
+      setIsAddingWilaya(false);
+      setNewWilayaName('');
+      handleWilaya(res._id);
+    } catch (e) {}
+    setIsGeoLoading(false);
+  };
+
+  const handleDeleteWilaya = async () => {
+    if (!wid) return;
+    const name = wilayas.find(x => x._id === wid)?.name;
+    if (!confirm(t.geoPage.confirmDeleteWilaya)) return;
+    setIsGeoLoading(true);
+    try {
+      await api.delete(`/api/wilayas/${wid}`);
+      const all = await api.get('/api/wilayas');
+      setWilayas(all);
+      handleWilaya('');
+    } catch (e) {}
+    setIsGeoLoading(false);
+  };
+
+  const handleCreateCommune = async () => {
+    if (!newCommuneName.trim() || !wid) return;
+    setIsGeoLoading(true);
+    try {
+      await api.post('/api/communes', { name: newCommuneName.trim(), wilayaId: wid });
+      const res = await api.get(`/api/communes?wilayaId=${wid}`);
+      setCommunes(res);
+      setIsAddingCommune(false);
+      setNewCommuneName('');
+    } catch (e) {}
+    setIsGeoLoading(false);
+  };
+
+  const handleDeleteCommune = async (id: string) => {
+    if (!confirm(t.geoPage.confirmDeleteCommune)) return;
+    setIsGeoLoading(true);
+    try {
+      await api.delete(`/api/communes/${id}`);
+      const res = await api.get(`/api/communes?wilayaId=${wid}`);
+      setCommunes(res);
+    } catch (e) {}
+    setIsGeoLoading(false);
+  };
 
   const openAdd = () => { setEditing(null); setForm({ ...empty }); setShowForm(true); };
   const openEdit = (item: WInfra) => {
@@ -156,15 +224,118 @@ export default function WilayaInfraPage() {
       <div style={{ flex:1, overflowY:'auto', padding:24 }}>
         {/* Wilaya selector */}
         <div style={{ background:'white', borderRadius:18, padding:20, marginBottom:16, boxShadow:'0 1px 4px rgba(0,0,0,0.06)', border:'1px solid #f3f4f6' }}>
-          <p style={{ fontSize:12, fontWeight:700, color:'#112347', margin:'0 0 12px' }}>{w.selectWilaya}</p>
-          <div style={{ position:'relative', maxWidth:360 }}>
-            <select value={wid} onChange={e => handleWilaya(e.target.value)}
-              style={{ width:'100%', appearance:'none', background:'white', border:'1.5px solid #e5e7eb', borderRadius:12, padding: isRTL ? '11px 14px 11px 36px' : '11px 36px 11px 14px', fontSize:13, fontWeight:600, color:'#112347', cursor:'pointer' }}>
-              <option value="">{w.chooseWilaya}</option>
-              {wilayas.map(wilaya => <option key={wilaya._id} value={wilaya._id}>{wilaya.name}</option>)}
-            </select>
-            <ChevronDown size={14} color="#9ca3af" style={{ position:'absolute', [isRTL ? 'left' : 'right']:12, top:'50%', transform:'translateY(-50%)', pointerEvents:'none' }} />
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+            <p style={{ fontSize:12, fontWeight:700, color:'#112347', margin:0 }}>{w.selectWilaya}</p>
+            <div style={{ display:'flex', gap:8 }}>
+              {isAddingWilaya ? (
+                <div style={{ display:'flex', gap:4 }}>
+                  <input 
+                    autoFocus
+                    placeholder={t.geoPage.wilayaName}
+                    value={newWilayaName}
+                    onChange={e => setNewWilayaName(e.target.value)}
+                    style={{ border:'1px solid #3b82f6', borderRadius:8, padding:'4px 8px', fontSize:12, outline:'none' }}
+                  />
+                  <button onClick={handleCreateWilaya} disabled={isGeoLoading} style={{ color:'#059669', background:'transparent', border:'none', cursor:'pointer' }}>
+                    {isGeoLoading ? <Loader2 size={16} className="animate-spin" /> : <Check size={18} />}
+                  </button>
+                  <button onClick={() => setIsAddingWilaya(false)} style={{ color:'#ef4444', background:'transparent', border:'none', cursor:'pointer' }}>
+                    <X size={18} />
+                  </button>
+                </div>
+              ) : (
+                <button onClick={() => setIsAddingWilaya(true)} style={{ display:'flex', alignItems:'center', gap:4, fontSize:11, fontWeight:700, color:'#3b82f6', background:'#eff6ff', border:'none', padding:'4px 8px', borderRadius:8, cursor:'pointer' }}>
+                  <Plus size={14} /> {t.geoPage.addWilaya}
+                </button>
+              )}
+            </div>
           </div>
+          
+          <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+            <div style={{ position:'relative', flex:1, maxWidth:360 }}>
+              <select value={wid} onChange={e => handleWilaya(e.target.value)}
+                style={{ width:'100%', appearance:'none', background:'white', border:'1.5px solid #e5e7eb', borderRadius:12, padding: isRTL ? '11px 14px 11px 36px' : '11px 36px 11px 14px', fontSize:13, fontWeight:600, color:'#112347', cursor:'pointer' }}>
+                <option value="">{w.chooseWilaya}</option>
+                {wilayas.map(wilaya => <option key={wilaya._id} value={wilaya._id}>{wilaya.name}</option>)}
+              </select>
+              <ChevronDown size={14} color="#9ca3af" style={{ position:'absolute', [isRTL ? 'left' : 'right']:12, top:'50%', transform:'translateY(-50%)', pointerEvents:'none' }} />
+            </div>
+            {wid && (
+              <button onClick={handleDeleteWilaya} disabled={isGeoLoading} style={{ padding:11, borderRadius:12, background:'#fef2f2', color:'#ef4444', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                {isGeoLoading ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={18} />}
+              </button>
+            )}
+          </div>
+
+          {/* Communes management */}
+          {wid && (
+            <div style={{ marginTop:24, paddingTop:24, borderTop:'1px solid #f1f5f9' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
+                <div>
+                  <p style={{ fontSize:13, fontWeight:800, color:'#1e293b', margin:0 }}>🏘️ {t.geoPage.communeName}s</p>
+                  <p style={{ fontSize:11, color:'#94a3b8', margin:0 }}>{t.geoPage.desc}</p>
+                </div>
+                {!isAddingCommune && (
+                  <button onClick={() => setIsAddingCommune(true)} 
+                    style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, fontWeight:700, color:'white', background:'#3b82f6', border:'none', padding:'8px 16px', borderRadius:10, cursor:'pointer', boxShadow:'0 4px 12px rgba(59, 130, 246, 0.2)' }}>
+                    <Plus size={16} /> {t.geoPage.addCommune}
+                  </button>
+                )}
+              </div>
+
+              {isAddingCommune && (
+                <div style={{ background:'#f8fafc', padding:16, borderRadius:16, border:'1px solid #e2e8f0', marginBottom:16 }}>
+                  <label style={{ fontSize:11, fontWeight:800, color:'#64748b', display:'block', marginBottom:8 }}>{t.geoPage.communeName} (أدخل بلديات متعددة مفصولة بفواصل)</label>
+                  <div style={{ display:'flex', gap:8 }}>
+                    <input 
+                      autoFocus
+                      placeholder="أدرار, تامست, رقان..."
+                      value={newCommuneName}
+                      onChange={e => setNewCommuneName(e.target.value)}
+                      style={{ flex:1, border:'1.5px solid #e2e8f0', borderRadius:10, padding:'10px 14px', fontSize:13, outline:'none', background:'white' }}
+                      onKeyDown={e => e.key === 'Enter' && handleCreateCommune()}
+                    />
+                    <button onClick={handleCreateCommune} disabled={isGeoLoading || !newCommuneName.trim()} 
+                      style={{ padding:'10px 20px', background:'#059669', color:'white', border:'none', borderRadius:10, cursor:'pointer', fontWeight:700, fontSize:13, display:'flex', alignItems:'center', gap:6 }}>
+                      {isGeoLoading ? <Loader2 size={16} className="animate-spin" /> : <Check size={18} />}
+                      {t.wilayaInfraPage.save}
+                    </button>
+                    <button onClick={() => { setIsAddingCommune(false); setNewCommuneName(''); }} 
+                      style={{ padding:'10px', background:'#fff', border:'1.5px solid #e2e8f0', borderRadius:10, cursor:'pointer', color:'#64748b' }}>
+                      <X size={18} />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                {communes.length > 0 ? communes.map(c => (
+                  <div key={c._id} 
+                    style={{ 
+                      display:'flex', alignItems:'center', gap:8, padding:'8px 12px', background:'white', 
+                      border:'1px solid #e2e8f0', borderRadius:10, fontSize:13, color:'#334155', fontWeight:600,
+                      transition:'all 0.2s', cursor:'default'
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'none'; }}
+                  >
+                    <span>{c.name}</span>
+                    <button onClick={() => handleDeleteCommune(c._id)} 
+                      style={{ border:'none', background:'transparent', cursor:'pointer', color:'#cbd5e1', padding:0, display:'flex', transition:'color 0.2s' }}
+                      onMouseEnter={e => e.currentTarget.style.color = '#ef4444'}
+                      onMouseLeave={e => e.currentTarget.style.color = '#cbd5e1'}
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                )) : (
+                  <div style={{ width:'100%', padding:'32px 0', textAlign:'center', border:'1px dashed #e2e8f0', borderRadius:16 }}>
+                    <p style={{ fontSize:13, color:'#94a3b8', margin:0 }}>{t.geoPage.noCommunes}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {!wid && (
