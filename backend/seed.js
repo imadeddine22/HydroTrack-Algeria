@@ -5,9 +5,7 @@ const Zone = require('./models/Zone');
 const Infrastructure = require('./models/Infrastructure');
 
 /* ── All 58 Algerian Wilayas with their communes (Arabic) ──────────── */
-const ALGERIA_DATA = require('./algeria_communes');, 'Tendla', 'Oued El Alenda'] },
-  { name: '58 - El Meniaa', communes: ['El Meniaa', 'Hassi Gara', 'Berezga', 'Zeghamra'] },
-];
+const ALGERIA_DATA = require('./algeria_communes');
 
 async function seed(db_uri) {
   if (!mongoose.connection.readyState) {
@@ -41,7 +39,7 @@ async function seed(db_uri) {
 
   // ── Sample Zones (for detailed monitoring) ───────────────────
   const algerCommunes = communeDocs.filter(c =>
-    wilayaDocs.find(w => w.name === '16 - Alger' && w._id.equals(c.wilayaId))
+    wilayaDocs.find(w => w.name === '16 - الجزائر' && w._id.equals(c.wilayaId))
   );
   const oranCommunes = communeDocs.filter(c =>
     wilayaDocs.find(w => w.name === '31 - Oran' && w._id.equals(c.wilayaId))
@@ -50,8 +48,8 @@ async function seed(db_uri) {
     wilayaDocs.find(w => w.name === '25 - Constantine' && w._id.equals(c.wilayaId))
   );
 
-  const kouba = algerCommunes.find(c => c.name === 'Kouba');
-  const hydraComm = algerCommunes.find(c => c.name === 'Hydra');
+  const kouba = algerCommunes.find(c => c.name === 'القبة');
+  const hydraComm = algerCommunes.find(c => c.name === 'حيدرة' || c.name === 'Hydra' || c.name === 'بئر مراد رايس');
   const birElDjir = oranCommunes.find(c => c.name === 'Bir El Djir');
   const elKhroub = conCommunes.find(c => c.name === 'El Khroub');
 
