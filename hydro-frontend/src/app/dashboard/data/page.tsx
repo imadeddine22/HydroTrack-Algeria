@@ -214,7 +214,7 @@ export default function DataPage(){
               </div>
               
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))',gap:8}}>
-                {wilayas.sort((a,b) => (Number(a.code)||99) - (Number(b.code)||99)).map((wil)=>(
+                {[...wilayas].sort((a,b) => (Number(a.code)||99) - (Number(b.code)||99)).map((wil)=>(
                   <div key={wil._id} style={{background:'#f8fafc',borderRadius:10,padding:'8px 12px',display:'flex',alignItems:'center',gap:8, border:'1px solid #f1f5f9'}}>
                     <span style={{width:24,height:24,borderRadius:6,background:'#e0f7ff',color:'#0096c7',fontSize:11,fontWeight:800,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
                       {wil.code || '?'}
@@ -276,7 +276,7 @@ export default function DataPage(){
 
               {/* List */}
               <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                {wilayas.sort((a,b) => (Number(a.code)||99) - (Number(b.code)||99)).map(wil => (
+                {[...wilayas].sort((a,b) => (Number(a.code)||99) - (Number(b.code)||99)).map(wil => (
                   <div key={wil._id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 14px',background:'white',border:'1px solid #f1f5f9',borderRadius:14}}>
                     <div style={{display:'flex',alignItems:'center',gap:12}}>
                       <span style={{width:28,height:28,borderRadius:8,background:'#e0f7ff',color:'#0096c7',fontSize:12,fontWeight:800,display:'flex',alignItems:'center',justifyContent:'center'}}>
@@ -299,9 +299,6 @@ export default function DataPage(){
           </div>
         </div>
       )}
-          </>
-        )}
-      </div>
     </div>
   );
 }

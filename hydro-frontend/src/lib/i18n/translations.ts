@@ -384,6 +384,8 @@ export const translations = {
       zoneName: 'Nom de la Zone',
       noZones: 'Aucune zone enregistrée pour cette commune.',
       confirmDeleteZone: 'Voulez-vous vraiment supprimer cette zone ?',
+      modification: 'Modification',
+      save: 'Enregistrer',
     }
   },
 
@@ -762,6 +764,8 @@ export const translations = {
       zoneName: 'Zone Name',
       noZones: 'No zones registered for this commune.',
       confirmDeleteZone: 'Do you really want to delete this zone?',
+      modification: 'Edit',
+      save: 'Save',
     }
   },
 
@@ -1139,6 +1143,8 @@ export const translations = {
       zoneName: 'اسم المنطقة',
       noZones: 'لا توجد مناطق مسجلة لهذه البلدية.',
       confirmDeleteZone: 'هل تريد حقاً حذف هذه المنطقة؟',
+      modification: 'تعديل',
+      save: 'حفظ',
     }
   },
 };

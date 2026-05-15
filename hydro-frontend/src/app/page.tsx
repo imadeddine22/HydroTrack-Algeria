@@ -35,7 +35,7 @@ function SelectBox({ label, value, onChange, items, disabled }: {
     <div className="relative">
       <select className={SEL} value={value} disabled={disabled} onChange={e => onChange(e.target.value)}>
         <option value="">{label}</option>
-        {items.sort((a,b)=>(Number((a as any).code)||99)-(Number((b as any).code)||99)).map(i => (
+        {[...items].sort((a,b)=>(Number((a as any).code)||99)-(Number((b as any).code)||99)).map(i => (
           <option key={i._id} value={i._id}>
             {(i as any).code ? `${(i as any).code} - ` : ''}{i.name}
           </option>
