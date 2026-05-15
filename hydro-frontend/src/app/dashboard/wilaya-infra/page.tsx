@@ -447,50 +447,46 @@ export default function WilayaInfraPage() {
               {isAddingCommune && (
                 <div style={{ background:'#f8fafc', padding:16, borderRadius:16, border:'1px solid #e2e8f0', marginBottom:16 }}>
                   <label style={{ fontSize:11, fontWeight:800, color:'#64748b', display:'block', marginBottom:8 }}>
-                    {editingCommune ? t.geoPage.modification : t.geoPage.communeName} {lang === 'ar' && !editingCommune && '(أدخل بلديات متعددة مفصولة بفواصل)'}
+                    {editingCommune ? t.geoPage.modification : t.geoPage.communeName}
                   </label>
                   <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
                     <div style={{ display:'flex', gap:8 }}>
                       <input 
                         autoFocus
-                        placeholder={editingCommune ? "Commune (FR)" : "أدرار, تامست, رقان..."}
+                        placeholder="Commune (FR)"
                         value={newCommuneName}
                         onChange={e => setNewCommuneName(e.target.value)}
                         style={{ flex:1, border:'1.5px solid #e2e8f0', borderRadius:10, padding:'10px 14px', fontSize:13, outline:'none', background:'white' }}
                         onKeyDown={e => e.key === 'Enter' && handleCreateCommune()}
                       />
-                      {editingCommune && (
-                        <button 
-                          onClick={async () => {
-                            const [ar, en] = await Promise.all([
-                              autoTranslate(newCommuneName, 'fr', 'ar'),
-                              autoTranslate(newCommuneName, 'fr', 'en'),
-                            ]);
-                            if (ar) setNewCommuneNameAr(ar);
-                            if (en) setNewCommuneNameEn(en);
-                          }}
-                          style={{ border:'none', background:'#3b82f6', color:'white', borderRadius:10, padding:'0 15px', cursor:'pointer' }}
-                        >
-                          ✨ Translate
-                        </button>
-                      )}
+                      <button 
+                        onClick={async () => {
+                          const [ar, en] = await Promise.all([
+                            autoTranslate(newCommuneName, 'fr', 'ar'),
+                            autoTranslate(newCommuneName, 'fr', 'en'),
+                          ]);
+                          if (ar) setNewCommuneNameAr(ar);
+                          if (en) setNewCommuneNameEn(en);
+                        }}
+                        style={{ border:'none', background:'#3b82f6', color:'white', borderRadius:10, padding:'0 15px', cursor:'pointer', fontSize:12, fontWeight:600 }}
+                      >
+                        ✨ ترجمة
+                      </button>
                     </div>
-                    {editingCommune && (
-                      <div style={{ display:'flex', gap:8 }}>
-                        <input 
-                          placeholder="البلدية (AR)"
-                          value={newCommuneNameAr}
-                          onChange={e => setNewCommuneNameAr(e.target.value)}
-                          style={{ flex:1, border:'1.5px solid #e2e8f0', borderRadius:10, padding:'10px 14px', fontSize:13, outline:'none', textAlign:'right' }}
-                        />
-                        <input 
-                          placeholder="Commune (EN)"
-                          value={newCommuneNameEn}
-                          onChange={e => setNewCommuneNameEn(e.target.value)}
-                          style={{ flex:1, border:'1.5px solid #e2e8f0', borderRadius:10, padding:'10px 14px', fontSize:13, outline:'none' }}
-                        />
-                      </div>
-                    )}
+                    <div style={{ display:'flex', gap:8 }}>
+                      <input 
+                        placeholder="البلدية (AR)"
+                        value={newCommuneNameAr}
+                        onChange={e => setNewCommuneNameAr(e.target.value)}
+                        style={{ flex:1, border:'1.5px solid #e2e8f0', borderRadius:10, padding:'10px 14px', fontSize:13, outline:'none', textAlign:'right', direction:'rtl' }}
+                      />
+                      <input 
+                        placeholder="Commune (EN)"
+                        value={newCommuneNameEn}
+                        onChange={e => setNewCommuneNameEn(e.target.value)}
+                        style={{ flex:1, border:'1.5px solid #e2e8f0', borderRadius:10, padding:'10px 14px', fontSize:13, outline:'none' }}
+                      />
+                    </div>
                     <div style={{ display:'flex', gap:8, justifyContent:'flex-end' }}>
                       <button onClick={() => { setIsAddingCommune(false); setEditingCommune(null); setNewCommuneName(''); setNewCommuneNameAr(''); setNewCommuneNameEn(''); }} 
                         style={{ padding:'10px 20px', background:'#fff', border:'1.5px solid #e2e8f0', borderRadius:10, cursor:'pointer', color:'#64748b', fontWeight:600 }}>
