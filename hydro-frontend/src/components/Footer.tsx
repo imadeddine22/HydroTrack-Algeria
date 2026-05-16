@@ -64,7 +64,7 @@ export default function Footer() {
           {/* Column 1: Brand & Info */}
           <div data-gsap="footer-brand" className="flex flex-col gap-6">
             <a href="#home" onClick={() => handleAnchor('#home')} className="flex items-center gap-2 cursor-pointer">
-              <img src="/logo.png" alt="HydroTrack Algeria" className="h-20 w-auto object-contain" />
+              <img src="/logo.png" alt="HydroTrack Algeria" className="h-28 w-auto object-contain" />
             </a>
             <p className="text-gray-400 text-sm leading-relaxed">
               {t.footer.newsletterDesc}
