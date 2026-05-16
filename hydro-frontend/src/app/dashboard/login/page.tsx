@@ -244,13 +244,7 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="ht-logo">
-          <div className="ht-logo-icon">
-            <Droplets size={22} color="#fff" strokeWidth={2.5} />
-          </div>
-          <div>
-            <div className="ht-logo-text">HydroTrack</div>
-            <div className="ht-logo-sub">Algeria — Admin</div>
-          </div>
+          <img src="/logo.png" alt="Logo" style={{ height: 60, width: 'auto', objectFit: 'contain' }} />
         </div>
 
         <p className="ht-title">{L.title}</p>

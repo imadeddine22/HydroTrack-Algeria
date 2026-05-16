@@ -64,10 +64,7 @@ export default function Footer() {
           {/* Column 1: Brand & Info */}
           <div className="flex flex-col gap-6">
             <a href="#home" onClick={() => handleAnchor('#home')} className="flex items-center gap-2 cursor-pointer">
-              <div className="w-8 h-8 rounded-full bg-[#00D4FF] flex items-center justify-center">
-                <div className="w-4 h-4 rounded-full bg-white"></div>
-              </div>
-              <span className="text-2xl font-bold">HydroTrack Algeria</span>
+              <img src="/logo.png" alt="HydroTrack Algeria" className="h-12 w-auto object-contain" />
             </a>
             <p className="text-gray-400 text-sm leading-relaxed">
               {t.footer.newsletterDesc}

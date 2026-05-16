@@ -51,19 +51,8 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
 
-        {/* Logo */}
         <a href="#home" onClick={() => handleAnchor('#home')} className="flex items-center gap-2 shrink-0 cursor-pointer">
-          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
-            <path d="M20 5L35 30H5L20 5Z" fill="url(#paint0_linear_nav)"/>
-            <path d="M20 5L28 18.5H12L20 5Z" fill="#00D4FF"/>
-            <defs>
-              <linearGradient id="paint0_linear_nav" x1="20" y1="5" x2="20" y2="30" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#0066FF" />
-                <stop offset="1" stopColor="#001155" />
-              </linearGradient>
-            </defs>
-          </svg>
-          <span className="font-bold text-2xl tracking-tight text-[#0B1E40]">HydroTrack</span>
+          <img src="/logo.png" alt="HydroTrack Algeria" className="h-10 md:h-12 w-auto object-contain" />
         </a>
 
         {/* Desktop nav */}

@@ -78,10 +78,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         alignItems:'center', padding:'24px 0', gap:8, boxShadow:'4px 0 24px rgba(0,0,0,0.3)', zIndex:10, flexShrink:0 }}>
 
         {/* Logo */}
-        <div style={{ width:40, height:40, borderRadius:'50%', background:'rgba(255,255,255,0.08)',
-          display:'flex', alignItems:'center', justifyContent:'center', marginBottom:16 }}>
-          <Droplets size={20} color="#48cae4" />
-        </div>
+        <Link href="/" style={{ marginBottom: 16 }}>
+          <img src="/logo.png" alt="Logo" style={{ width: 44, height: 44, objectFit: 'contain' }} />
+        </Link>
 
         {/* Nav */}
         <nav style={{ display:'flex', flexDirection:'column', gap:6, flex:1 }}>
