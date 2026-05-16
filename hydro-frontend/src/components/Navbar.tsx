@@ -44,6 +44,7 @@ export default function Navbar() {
 
   return (
     <header
+      data-gsap="navbar"
       className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-300 ${
         scrolled ? 'bg-white/95 backdrop-blur-md shadow-md py-3' : 'bg-transparent py-4'
       }`}
@@ -52,7 +53,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
 
         <a href="#home" onClick={() => handleAnchor('#home')} className="flex items-center gap-2 shrink-0 cursor-pointer">
-          <img src="/logo.png" alt="HydroTrack Algeria" className="h-10 md:h-12 w-auto object-contain" />
+          <img src="/logo.png" alt="HydroTrack Algeria" className="h-16 md:h-20 w-auto object-contain" />
         </a>
 
         {/* Desktop nav */}

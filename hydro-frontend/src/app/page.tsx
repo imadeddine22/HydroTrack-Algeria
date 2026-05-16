@@ -12,6 +12,7 @@ import InfraModal from '@/components/InfraModal';
 import CyberInfraCard, { InfraItem } from '@/components/CyberInfraCard';
 import { api } from '@/lib/api';
 import { useLang } from '@/lib/i18n/LanguageContext';
+import { useGsapAnimations } from '@/lib/useGsapAnimations';
 
 /* Feature icons in order */
 const FEATURE_ICONS = [Activity, MapPin, TrendingUp, ShieldCheck];
@@ -48,7 +49,7 @@ function SelectBox({ label, value, onChange, items, disabled }: {
 
 function StatCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: string | number; color: string }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+    <div data-gsap="stat-card" className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
       <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
         <Icon className="w-6 h-6 text-white" />
       </div>
@@ -108,6 +109,7 @@ function CategorySection({ title, icon: Icon, items, color, onCardClick }: {
 /* ── Main Page ────────────────────────────────────────── */
 export default function HomePage() {
   const { t, isRTL } = useLang();
+  useGsapAnimations();
   /* Geo */
   const [wilayas, setWilayas] = useState<Item[]>([]);
   const [communes, setCommunes] = useState<Item[]>([]);
@@ -232,6 +234,7 @@ export default function HomePage() {
 
         {/* Water image — hidden on mobile, shown on md+ */}
         <div
+          data-gsap="hero-image"
           className={`hidden md:block absolute top-1/2 -translate-y-[45%] z-10 pointer-events-none ${isRTL ? 'left-0' : 'right-0'}`}
           style={{ width: 'clamp(340px, 52vw, 780px)' }}
         >
@@ -258,14 +261,14 @@ export default function HomePage() {
           <div className={`w-full md:w-1/2 pt-6 md:pt-0 ${isRTL ? 'pr-0 md:pr-16 text-right' : 'pl-0 md:pl-16 text-left'}`}>
             
             {/* Mobile-Only Badge */}
-            <div className="inline-flex md:hidden items-center gap-2 bg-[#00D4FF]/10 border border-[#00D4FF]/20 rounded-full px-3 py-1 mb-6 animate-pulse">
+            <div data-gsap="hero-badge" className="inline-flex md:hidden items-center gap-2 bg-[#00D4FF]/10 border border-[#00D4FF]/20 rounded-full px-3 py-1 mb-6 animate-pulse">
               <div className="w-2 h-2 rounded-full bg-[#00D4FF]" />
               <span className="text-[10px] font-bold text-[#00D4FF] uppercase tracking-wider">
                 {t.hero.badge}
               </span>
             </div>
 
-            <h1 className="text-[2.2rem] sm:text-[2.8rem] md:text-[3.5rem] font-extrabold text-[#0B1E40] leading-[1.1] tracking-tight mb-6">
+            <h1 data-gsap="hero-title" className="text-[2.2rem] sm:text-[2.8rem] md:text-[3.5rem] font-extrabold text-[#0B1E40] leading-[1.1] tracking-tight mb-6">
               <span className="block">{t.hero.title1}</span>
               <span className="bg-gradient-to-r from-[#00D4FF] to-[#0077B6] bg-clip-text text-transparent">
                 {t.hero.title2}
@@ -273,7 +276,7 @@ export default function HomePage() {
               <span className="block mt-1">{t.hero.title3}</span>
             </h1>
             
-            <p className="text-[#4A5568] text-base sm:text-lg md:text-xl mb-8 max-w-lg leading-relaxed opacity-90">
+            <p data-gsap="hero-desc" className="text-[#4A5568] text-base sm:text-lg md:text-xl mb-8 max-w-lg leading-relaxed opacity-90">
               {t.hero.desc}
             </p>
 
@@ -311,7 +314,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-stretch sm:items-center">
+            <div data-gsap="hero-cta" className="flex flex-col sm:flex-row flex-wrap gap-4 items-stretch sm:items-center">
               <a href="#explore"
                 className="group relative overflow-hidden px-8 py-4 bg-[#00D4FF] text-white font-bold rounded-2xl shadow-[0_10px_25px_rgba(0,212,255,0.3)] hover:shadow-[0_15px_35px_rgba(0,212,255,0.5)] transition-all text-center">
                 <span className="relative z-10 flex items-center justify-center gap-2">
@@ -335,16 +338,16 @@ export default function HomePage() {
       <section id="features" className="py-24 bg-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
-            <h2 className="text-3xl md:text-[2.5rem] font-bold text-[#0B1E40] mb-4">
+            <h2 data-gsap="features-title" className="text-3xl md:text-[2.5rem] font-bold text-[#0B1E40] mb-4">
               {t.features.heading}
             </h2>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-between items-start gap-8 md:gap-4 relative">
+          <div data-gsap="features-grid" className="flex flex-col md:flex-row justify-between items-start gap-8 md:gap-4 relative">
             {t.features.items.map((feat, idx) => {
               const Icon = FEATURE_ICONS[idx];
               return (
-                <div key={`feat-${idx}`} className="flex-1 flex flex-col items-center text-center px-4 w-full relative z-10">
+                <div data-gsap="feature-item" key={`feat-${idx}`} className="flex-1 flex flex-col items-center text-center px-4 w-full relative z-10">
                   <div className="mb-6">
                     <Icon className="w-16 h-16 text-[#00D4FF]" strokeWidth={1.5} />
                   </div>
@@ -377,23 +380,25 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
           <div className={`flex flex-col lg:flex-row gap-8 lg:gap-12 items-start mb-12 md:mb-20 ${isRTL ? 'lg:flex-row-reverse' : ''}`}>
             <div className={`w-full lg:w-1/2 ${isRTL ? 'text-right' : ''}`}>
-              <h2 className="text-[1.8rem] sm:text-[2.2rem] md:text-[3rem] lg:text-[3.5rem] font-extrabold text-[#0B1E40] leading-[1.1] tracking-tight mb-4 md:mb-6">
+              <h2 data-gsap="explore-title" className="text-[1.8rem] sm:text-[2.2rem] md:text-[3rem] lg:text-[3.5rem] font-extrabold text-[#0B1E40] leading-[1.1] tracking-tight mb-4 md:mb-6">
                 {t.explore.title1}<br />
                 {t.explore.title2}<br />
                 {t.explore.title3}
               </h2>
-              <p className="text-[#64748B] text-lg leading-relaxed max-w-lg">
+              <p data-gsap="explore-desc" className="text-[#64748B] text-lg leading-relaxed max-w-lg">
                 {t.explore.desc}
               </p>
             </div>
             <div className="w-full lg:w-1/2 relative flex items-center justify-center py-4 lg:py-8">
               <img
+                data-gsap="explore-img-1"
                 src="/algeria-infra.jpg"
                 alt="Oued Dib Bridge, Beni Haroun Dam - Algeria"
                 className="tri alt"
                 style={{ width: 'clamp(180px, 45vw, 360px)' }}
               />
               <img
+                data-gsap="explore-img-2"
                 src="/algeria-infra2.jpg"
                 alt="Water Infrastructure Algeria"
                 className="tri"
@@ -403,7 +408,7 @@ export default function HomePage() {
           </div>
 
           {/* Filter Panel */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+          <div data-gsap="filter-panel" className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
             <div className="flex items-center gap-2 mb-5">
               <MapPin className="w-5 h-5 text-[#00b4d8]" />
               <span className="font-bold text-[#112347]">{t.explore.geoFilter}</span>
@@ -530,7 +535,7 @@ export default function HomePage() {
         <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 flex flex-col items-center gap-0 min-h-[540px] py-12 md:py-20 ${isRTL ? 'md:flex-row-reverse' : 'md:flex-row'}`}>
 
           {/* Expert Image */}
-          <div className={`w-full md:w-[42%] relative flex justify-center items-center ${isRTL ? 'md:justify-end' : 'md:justify-start'}`}>
+          <div data-gsap="about-image" className={`w-full md:w-[42%] relative flex justify-center items-center ${isRTL ? 'md:justify-end' : 'md:justify-start'}`}>
             <div className="hidden md:block absolute left-0 top-1/2 -translate-y-1/2 w-80 h-80 bg-[#EBF5FF] rounded-full -translate-x-16" />
             <div className="hidden md:block absolute left-20 top-1/2 -translate-y-1/2 w-52 h-52 bg-[#00D4FF]/10 rounded-full" />
             <img
@@ -543,10 +548,10 @@ export default function HomePage() {
 
           {/* Text Content */}
           <div className={`w-full md:w-[58%] flex flex-col justify-center ${isRTL ? 'md:pr-16 text-right' : 'md:pl-16'}`}>
-            <span className="inline-block text-xs font-bold uppercase tracking-widest text-[#00b4d8] mb-3">
+            <span data-gsap="about-badge" className="inline-block text-xs font-bold uppercase tracking-widest text-[#00b4d8] mb-3">
               {t.about.badge}
             </span>
-            <h2 className="text-[1.5rem] sm:text-[1.9rem] md:text-[2.8rem] font-extrabold text-[#0B1E40] leading-[1.15] mb-5 break-words">
+            <h2 data-gsap="about-title" className="text-[1.5rem] sm:text-[1.9rem] md:text-[2.8rem] font-extrabold text-[#0B1E40] leading-[1.15] mb-5 break-words">
               {t.about.title1}<br />
               {t.about.title2}<br />
               <span className="text-[#00D4FF]">{t.about.title3}</span>
@@ -556,9 +561,9 @@ export default function HomePage() {
             </p>
 
             {/* Checklist */}
-            <ul className="space-y-3 mb-8">
+            <ul data-gsap="about-checks" className="space-y-3 mb-8">
               {[t.about.check1, t.about.check2, t.about.check3].map((item, i) => (
-                <li key={i} className="flex items-start gap-3 text-[#0B1E40] font-medium text-sm md:text-base">
+                <li data-gsap="about-check" key={i} className="flex items-start gap-3 text-[#0B1E40] font-medium text-sm md:text-base">
                   <span className="mt-0.5 w-5 h-5 rounded-full bg-[#00D4FF] flex items-center justify-center shrink-0">
                     <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
                       <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -570,7 +575,7 @@ export default function HomePage() {
             </ul>
 
             {/* Expert bio card */}
-            <div className="bg-[#EBF5FF] rounded-2xl p-5 flex items-start gap-5 max-w-xl border border-[#00D4FF]/20">
+            <div data-gsap="about-bio" className="bg-[#EBF5FF] rounded-2xl p-5 flex items-start gap-5 max-w-xl border border-[#00D4FF]/20">
               <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shrink-0 overflow-hidden border-2 border-[#00D4FF]/40 shadow">
                 <img src="/expert-man.png" alt="Jamal Eddine Massaoudi" className="h-full w-full object-cover object-top scale-[1.6] translate-y-6" />
               </div>
@@ -620,7 +625,7 @@ export default function HomePage() {
           <div className={`flex flex-col items-center gap-8 md:gap-16 lg:gap-24 ${isRTL ? 'md:flex-row-reverse' : 'md:flex-row'}`}>
 
             {/* Left – Text */}
-            <div className={`w-full md:w-1/2 lg:w-[45%] ${isRTL ? 'text-right' : ''}`}>
+            <div data-gsap="contact-text" className={`w-full md:w-1/2 lg:w-[45%] ${isRTL ? 'text-right' : ''}`}>
               <h2 className="text-[1.6rem] sm:text-[2rem] md:text-[2.8rem] font-extrabold text-[#112347] leading-[1.2] mb-4 md:mb-6">
                 {t.contact.title1}<br />
                 {t.contact.title2}<br />
@@ -632,7 +637,7 @@ export default function HomePage() {
             </div>
 
             {/* Right – Form */}
-            <div className="w-full md:w-1/2 lg:w-[55%]">
+            <div data-gsap="contact-form" className="w-full md:w-1/2 lg:w-[55%]">
               <ContactForm />
             </div>
 

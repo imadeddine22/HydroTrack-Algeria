@@ -62,9 +62,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
 
           {/* Column 1: Brand & Info */}
-          <div className="flex flex-col gap-6">
+          <div data-gsap="footer-brand" className="flex flex-col gap-6">
             <a href="#home" onClick={() => handleAnchor('#home')} className="flex items-center gap-2 cursor-pointer">
-              <img src="/logo.png" alt="HydroTrack Algeria" className="h-12 w-auto object-contain" />
+              <img src="/logo.png" alt="HydroTrack Algeria" className="h-20 w-auto object-contain" />
             </a>
             <p className="text-gray-400 text-sm leading-relaxed">
               {t.footer.newsletterDesc}
@@ -88,7 +88,7 @@ export default function Footer() {
           </div>
 
           {/* Column 2: Address */}
-          <div className="flex flex-col gap-6">
+          <div data-gsap="footer-col" className="flex flex-col gap-6">
             <h3 className="text-xl font-bold">{t.footer.coordinates}</h3>
             <ul className="flex flex-col gap-4 text-sm text-gray-400">
               <li className="flex items-start gap-3">
@@ -118,7 +118,7 @@ export default function Footer() {
           </div>
 
           {/* Column 3: Useful Links */}
-          <div className="flex flex-col gap-6">
+          <div data-gsap="footer-col" className="flex flex-col gap-6">
             <h3 className="text-xl font-bold">{t.footer.links}</h3>
             <ul className="flex flex-col gap-3 text-sm text-gray-400">
               <li>
@@ -155,7 +155,7 @@ export default function Footer() {
           </div>
 
           {/* Column 4: Newsletter */}
-          <div className="flex flex-col gap-6">
+          <div data-gsap="footer-col" className="flex flex-col gap-6">
             <h3 className="text-xl font-bold">{t.footer.newsletter}</h3>
             <p className="text-sm text-gray-400 leading-relaxed">{t.footer.newsletterDesc}</p>
             <form className="flex mt-2" onSubmit={e => e.preventDefault()}>
