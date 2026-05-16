@@ -34,8 +34,8 @@ export default function Footer() {
 
         {/* Top CTA Section */}
         <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-6">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#00D4FF]">
-            {t.footer.cta}
+          <h2 className="text-3xl md:text-4xl font-bold text-white">
+            <span className="text-[#00D4FF]">{t.footer.cta.slice(0, 4)}</span>{t.footer.cta.slice(4)}
           </h2>
           <a
             href="tel:+213698694461"
