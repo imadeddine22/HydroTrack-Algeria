@@ -46,7 +46,7 @@ export default function Navbar() {
     <header
       data-gsap="navbar"
       className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-300 ${
-        scrolled ? 'bg-white/95 backdrop-blur-md shadow-md py-3' : 'bg-transparent py-4'
+        scrolled ? 'bg-white/95 backdrop-blur-md shadow-md py-0' : 'bg-transparent py-1'
       }`}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
