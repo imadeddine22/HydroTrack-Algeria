@@ -36,10 +36,7 @@ export function useGsapAnimations() {
         }, '-=0.3')
         .from('[data-gsap="hero-cta"] > *', {
           y: 20, opacity: 0, duration: 0.5, stagger: 0.12, ease: 'power2.out',
-        }, '-=0.2')
-        .from('[data-gsap="hero-image"]', {
-          x: 80, opacity: 0, duration: 1, ease: 'power3.out',
-        }, '-=0.8');
+        }, '-=0.2');
 
       /* ── 3. FEATURES ────────────────────────────────────────── */
       gsap.from('[data-gsap="features-title"]', {

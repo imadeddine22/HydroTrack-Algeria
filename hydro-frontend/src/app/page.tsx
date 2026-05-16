@@ -234,7 +234,6 @@ export default function HomePage() {
 
         {/* Water image — hidden on mobile, shown on md+ */}
         <div
-          data-gsap="hero-image"
           className={`hidden md:block absolute top-1/2 -translate-y-[45%] z-10 pointer-events-none ${isRTL ? 'left-0' : 'right-0'}`}
           style={{ width: 'clamp(340px, 52vw, 780px)' }}
         >
