@@ -34,7 +34,7 @@ export default function Footer() {
 
         {/* Top CTA Section */}
         <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-6">
-          <h2 className="text-3xl md:text-4xl font-bold">
+          <h2 className="text-3xl md:text-4xl font-bold text-[#00D4FF]">
             {t.footer.cta}
           </h2>
           <a
